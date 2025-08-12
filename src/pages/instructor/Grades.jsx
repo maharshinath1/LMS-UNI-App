@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, BarChart2, UserCircle, Edit, CheckCircle, X, MessageCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const dummyCourses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -25,6 +26,7 @@ const dummyGrades = {
 };
 
 export default function Grades() {
+  const { t } = useTranslation();
   const [selectedCourse, setSelectedCourse] = useState(dummyCourses[0].code);
   const [showModal, setShowModal] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
@@ -57,7 +59,7 @@ export default function Grades() {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="instructor" />
       <div className="flex-1 overflow-auto p-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Grades & Assessment</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">{t('instructor.grades.title')}</h1>
         {/* Course Selector */}
         <div className="mb-6 flex items-center gap-4">
           <BarChart2 size={24} className="text-blue-600 dark:text-blue-400" />
@@ -70,11 +72,11 @@ export default function Grades() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Student</th>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Email</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Assignments</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Final Grade</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Actions</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.grades.table.student')}</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.grades.table.email')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.grades.table.assignments')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.grades.table.final')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.grades.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -94,8 +96,8 @@ export default function Grades() {
                   </td>
                   <td className="py-3 px-4 text-center font-bold text-lg text-blue-700 dark:text-blue-400">{s.final}</td>
                   <td className="py-3 px-4 text-center">
-                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 mr-2" title="Edit Grade" onClick={() => openModal(s)}><Edit size={18} /></button>
-                    <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200" title="Message"><MessageCircle size={18} /></button>
+                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 mr-2" title={t('instructor.grades.actions.editGrade')} onClick={() => openModal(s)}><Edit size={18} /></button>
+                    <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200" title={t('instructor.grades.actions.message')}><MessageCircle size={18} /></button>
                   </td>
                 </tr>
               ))}
@@ -118,21 +120,21 @@ export default function Grades() {
                 </div>
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><BarChart2 size={18}/> Assignment Grades</div>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><BarChart2 size={18}/> {t('instructor.grades.modal.assignmentGrades')}</div>
                 <div className="flex gap-2 flex-wrap">
                   {activeStudent.assignments.map((g, i) => (
-                    <span key={i} className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 rounded px-2 py-1 text-xs font-semibold">Assignment {i+1}: {g}</span>
+                    <span key={i} className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 rounded px-2 py-1 text-xs font-semibold">{t('instructor.grades.modal.assignmentLabel', { index: i + 1, grade: g })}</span>
                   ))}
                 </div>
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><CheckCircle size={18}/> Final Grade</div>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><CheckCircle size={18}/> {t('instructor.grades.modal.finalGrade')}</div>
                 <input type="number" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-24 text-center text-lg font-bold dark:bg-gray-900 dark:text-gray-100" value={editFinal} onChange={e => setEditFinal(e.target.value)} />
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><Edit size={18}/> Feedback</div>
-                <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 dark:bg-gray-900 dark:text-gray-100" rows={3} value={editFeedback} onChange={e => setEditFeedback(e.target.value)} placeholder="Add feedback..." />
-                <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveGrade}>Save Grade</button>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><Edit size={18}/> {t('instructor.grades.modal.feedback')}</div>
+                <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 dark:bg-gray-900 dark:text-gray-100" rows={3} value={editFeedback} onChange={e => setEditFeedback(e.target.value)} placeholder={t('instructor.grades.modal.feedbackPlaceholder')} />
+                <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveGrade}>{t('instructor.grades.modal.save')}</button>
               </div>
             </div>
           </div>

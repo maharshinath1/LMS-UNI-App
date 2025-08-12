@@ -1,91 +1,20 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Calendar, Clock, BookOpen, Users, MapPin, ChevronLeft, ChevronRight, PlusCircle, Video, Grid, GraduationCap, Clock3, CalendarCheck, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const classColors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100'];
 
 const scheduleData = [
-  {
-    id: 1,
-    course: 'Cyber Security',
-    instructor: 'Dr. Sarah Johnson',
-    day: 'Monday',
-    start: '10:00',
-    end: '11:30',
-    room: 'Room 101',
-    online: true
-  },
-  {
-    id: 2,
-    course: 'Data Structures',
-    instructor: 'Prof. Michael Chen',
-    day: 'Tuesday',
-    start: '14:00',
-    end: '15:30',
-    room: 'Room 203',
-    online: false
-  },
-  {
-    id: 3,
-    course: 'Web Development',
-    instructor: 'Dr. Emily Brown',
-    day: 'Wednesday',
-    start: '13:00',
-    end: '14:30',
-    room: 'Room 305',
-    online: true
-  },
-  {
-    id: 4,
-    course: 'Cyber Security',
-    instructor: 'Dr. Sarah Johnson',
-    day: 'Thursday',
-    start: '10:00',
-    end: '11:30',
-    room: 'Room 101',
-    online: false
-  },
-  {
-    id: 5,
-    course: 'Data Structures',
-    instructor: 'Prof. Michael Chen',
-    day: 'Thursday',
-    start: '14:00',
-    end: '15:30',
-    room: 'Room 203',
-    online: true
-  },
-  {
-    id: 6,
-    course: 'Web Development',
-    instructor: 'Dr. Emily Brown',
-    day: 'Friday',
-    start: '13:00',
-    end: '14:30',
-    room: 'Room 305',
-    online: false
-  },
-  {
-    id: 7,
-    course: 'Machine Learning',
-    instructor: 'Dr. Alex Wong',
-    day: 'Thursday',
-    start: '09:00',
-    end: '10:30',
-    room: 'Room 405',
-    online: true
-  },
-  {
-    id: 8,
-    course: 'Database Systems',
-    instructor: 'Prof. Lisa Park',
-    day: 'Thursday',
-    start: '16:00',
-    end: '17:30',
-    room: 'Room 202',
-    online: true
-  }
+  { id: 1, course: 'Cyber Security', instructor: 'Dr. Sarah Johnson', day: 'Monday', start: '10:00', end: '11:30', room: 'Room 101', online: true },
+  { id: 2, course: 'Data Structures', instructor: 'Prof. Michael Chen', day: 'Tuesday', start: '14:00', end: '15:30', room: 'Room 203', online: false },
+  { id: 3, course: 'Web Development', instructor: 'Dr. Emily Brown', day: 'Wednesday', start: '13:00', end: '14:30', room: 'Room 305', online: true },
+  { id: 4, course: 'Cyber Security', instructor: 'Dr. Sarah Johnson', day: 'Thursday', start: '10:00', end: '11:30', room: 'Room 101', online: false },
+  { id: 5, course: 'Data Structures', instructor: 'Prof. Michael Chen', day: 'Thursday', start: '14:00', end: '15:30', room: 'Room 203', online: true },
+  { id: 6, course: 'Web Development', instructor: 'Dr. Emily Brown', day: 'Friday', start: '13:00', end: '14:30', room: 'Room 305', online: false },
+  { id: 7, course: 'Machine Learning', instructor: 'Dr. Alex Wong', day: 'Thursday', start: '09:00', end: '10:30', room: 'Room 405', online: true },
+  { id: 8, course: 'Database Systems', instructor: 'Prof. Lisa Park', day: 'Thursday', start: '16:00', end: '17:30', room: 'Room 202', online: true }
 ];
 
 function getToday() {
@@ -107,6 +36,7 @@ function formatDate(date) {
 }
 
 export default function Schedule() {
+  const { t } = useTranslation();
   const [selectedDay, setSelectedDay] = useState(getToday());
   const [viewMode, setViewMode] = useState('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -129,12 +59,12 @@ export default function Schedule() {
       <div className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto p-4">
           {/* Header Section */}
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify_between items-center mb-4 flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" /> Class Schedule
+                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" /> {t('student.schedule.title')}
               </h1>
-              <p className="text-gray-500 dark:text-gray-300">Your weekly timetable at a glance</p>
+              <p className="text-gray-500 dark:text-gray-300">{t('student.schedule.subtitle')}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1">
               <button
@@ -143,7 +73,7 @@ export default function Schedule() {
                   viewMode === 'weekly' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'
                 }`}
               >
-                Weekly
+                {t('student.schedule.views.weekly')}
               </button>
               <button
                 onClick={() => setViewMode('monthly')}
@@ -151,7 +81,7 @@ export default function Schedule() {
                   viewMode === 'monthly' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'
                 }`}
               >
-                Monthly
+                {t('student.schedule.views.monthly')}
               </button>
             </div>
           </div>
@@ -160,14 +90,14 @@ export default function Schedule() {
             {/* Today's Classes */}
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
               <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">
-                <Clock className="w-5 h-5" /> Today's Classes
+                <Clock className="w-5 h-5" /> {t('student.schedule.todayTitle')}
               </h2>
               <div className="flex overflow-x-auto pb-2 -mx-1 px-1">
                 <div className="flex gap-3 min-w-min">
-                  {todayClasses.length === 0 && <div className="text-gray-400 dark:text-gray-500">No classes today!</div>}
+                  {todayClasses.length === 0 && <div className="text-gray-400 dark:text-gray-500">{t('student.schedule.noToday')}</div>}
                   {todayClasses.map((cls, idx) => (
                     <div key={cls.id} className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 w-[280px] flex-shrink-0">
-                      <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium mb-2">
+                      <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font_medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium mb-2">
                         <BookOpen className="w-4 h-4 text-blue-600" /> {cls.course}
                       </div>
                       <div className="space-y-1 text-sm">
@@ -182,7 +112,7 @@ export default function Schedule() {
                         </div>
                         {cls.online && (
                           <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-medium">
-                            <Video className="w-3.5 h-3.5" /> Online Available
+                            <Video className="w-3.5 h-3.5" /> {t('student.schedule.onlineAvailable')}
                           </div>
                         )}
                       </div>
@@ -196,62 +126,62 @@ export default function Schedule() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Quick Stats */}
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">Quick Stats</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">{t('student.schedule.stats.title')}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                       <GraduationCap className="w-4 h-4" />
-                      <span className="text-sm font-medium">Total Classes</span>
+                      <span className="text-sm font-medium">{t('student.schedule.stats.totalClasses')}</span>
                     </div>
                     <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">{totalClasses}</p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400">This semester</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">{t('student.schedule.stats.thisSemester')}</p>
                   </div>
                   <div className="bg-green-50 dark:bg-green-900 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                       <Video className="w-4 h-4" />
-                      <span className="text-sm font-medium">Online Classes</span>
+                      <span className="text-sm font-medium">{t('student.schedule.stats.onlineClasses')}</span>
                     </div>
                     <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-1">{onlineClasses}</p>
-                    <p className="text-xs text-green-600 dark:text-green-400">Available online</p>
+                    <p className="text-xs text-green-600 dark:text-green-400">{t('student.schedule.stats.availableOnline')}</p>
                   </div>
                   <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                    <div className="flex items_center gap-2 text-purple-600 dark:text-purple-400 flex items-center gap-2 text-purple-600 dark:text-purple-400">
                       <Clock3 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Total Hours</span>
+                      <span className="text-sm font-medium">{t('student.schedule.stats.totalHours')}</span>
                     </div>
                     <p className="text-2xl font-bold text-purple-700 dark:text-purple-300 mt-1">{totalHours}</p>
-                    <p className="text-xs text-purple-600 dark:text-purple-400">Weekly hours</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">{t('student.schedule.stats.weeklyHours')}</p>
                   </div>
                   <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                       <CalendarCheck className="w-4 h-4" />
-                      <span className="text-sm font-medium">Attendance</span>
+                      <span className="text-sm font-medium">{t('student.schedule.stats.attendance')}</span>
                     </div>
                     <p className="text-2xl font-bold text-orange-700 dark:text-orange-300 mt-1">92%</p>
-                    <p className="text-xs text-orange-600 dark:text-orange-400">Current rate</p>
+                    <p className="text-xs text-orange-600 dark:text-orange-400">{t('student.schedule.stats.currentRate')}</p>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions */}
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">Quick Actions</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">{t('student.schedule.actions.title')}</h3>
                 <div className="grid grid-cols-2 gap-3 h-[calc(100%-3rem)]">
                   <button className="flex flex-col items-center justify-center gap-3 p-6 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 transition-colors">
                     <Video className="w-6 h-6 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">Join Next Class</span>
+                    <span className="text-sm font-medium text_gray-700 dark:text-gray-300 text-center text-gray-700">{t('student.schedule.actions.joinNext')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center gap-3 p-6 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 transition-colors">
                     <Bell className="w-6 h-6 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">Set Reminder</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{t('student.schedule.actions.setReminder')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center gap-3 p-6 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 transition-colors">
                     <Calendar className="w-6 h-6 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">Sync Calendar</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{t('student.schedule.actions.syncCalendar')}</span>
                   </button>
                   <button className="flex flex-col items-center justify-center gap-3 p-6 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 transition-colors">
                     <MapPin className="w-6 h-6 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">View Map</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{t('student.schedule.actions.viewMap')}</span>
                   </button>
                 </div>
               </div>
@@ -277,11 +207,11 @@ export default function Schedule() {
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <BookOpen className="w-5 h-5 text-purple-600" />
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedDay}'s Classes</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('student.schedule.weekly.header', { day: selectedDay })}</h2>
                 </div>
                 <div className="space-y-3">
                   {filteredClasses.length === 0 && (
-                    <div className="text-gray-400 dark:text-gray-500">No classes scheduled for {selectedDay}.</div>
+                    <div className="text-gray-400 dark:text-gray-500">{t('student.schedule.weekly.noClasses', { day: selectedDay })}</div>
                   )}
                   {filteredClasses.map((cls, idx) => (
                     <div key={cls.id} className={`flex items-center gap-4 p-4 rounded-lg border-l-4 ${classColors[idx % classColors.length]}`}>
@@ -304,11 +234,11 @@ export default function Schedule() {
                       <div className="flex flex-col gap-2">
                         {cls.online && (
                           <button className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700">
-                            <Video className="w-3.5 h-3.5" /> Join Online
+                            <Video className="w-3.5 h-3.5" /> {t('student.schedule.weekly.joinOnline')}
                           </button>
                         )}
                         <button className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium hover:bg-blue-200">
-                          <PlusCircle className="w-3.5 h-3.5" /> Add to Calendar
+                          <PlusCircle className="w-3.5 h-3.5" /> {t('student.schedule.weekly.addCalendar')}
                         </button>
                       </div>
                     </div>
@@ -338,9 +268,9 @@ export default function Schedule() {
                   </div>
                 </div>
                 <div className="grid grid-cols-7 gap-1">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(day => (
                     <div key={day} className="p-2 text-center font-semibold text-gray-600 dark:text-gray-400">
-                      {day}
+                      {t(`student.schedule.days.short.${day}`)}
                     </div>
                   ))}
                   {[...Array(getFirstDayOfMonth(currentDate.getFullYear(), currentDate.getMonth()))].map((_, index) => (

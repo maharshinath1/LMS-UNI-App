@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookMarked, Users2, Star, Eye, Lock, Share2, Sparkles, MessageCircle, Send, UserCircle, FolderOpen, Users, Award, Link2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const demoPosts = [
   {
@@ -32,6 +33,7 @@ const quickLinks = [
 ];
 
 export default function Ecollab() {
+  const { t } = useTranslation();
   const [posts, setPosts] = useState(demoPosts);
   const [newPost, setNewPost] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
@@ -42,8 +44,8 @@ export default function Ecollab() {
       setPosts([
         {
           id: Date.now(),
-          user: { name: 'You', avatar: '', role: 'Student' },
-          time: 'Just now',
+          user: { name: t('student.ecollab.you'), avatar: '', role: 'Student' },
+          time: t('student.ecollab.justNow'),
           content: newPost,
           replies: []
         },
@@ -57,7 +59,7 @@ export default function Ecollab() {
     if (newReply.trim()) {
       setPosts(posts.map(post =>
         post.id === postId
-          ? { ...post, replies: [...post.replies, { id: Date.now(), user: { name: 'You', avatar: '', role: 'Student' }, time: 'Just now', content: newReply }] }
+          ? { ...post, replies: [...post.replies, { id: Date.now(), user: { name: t('student.ecollab.you'), avatar: '', role: 'Student' }, time: t('student.ecollab.justNow'), content: newReply }] }
           : post
       ));
       setNewReply('');
@@ -73,21 +75,22 @@ export default function Ecollab() {
         <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-4 mb-8">
           <div className="flex items-center gap-3 mb-4">
             <BookMarked className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">eCollab</h1>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">{t('student.ecollab.title')}</h1>
           </div>
           <div className="text-lg text-gray-700 dark:text-gray-300 space-y-4">
             <p>
-              <span className="font-semibold text-blue-700 dark:text-blue-400">What's an eCollab?</span><br />
-              eCollab is a dynamic digital space designed to help users showcase meaningful work, reflect on learning, and share achievements in a professional setting. It goes beyond file storage — it enables storytelling, collaboration, and branding.
+              <span className="font-semibold text-blue-700 dark:text-blue-400">{t('student.ecollab.whatIsTitle')}</span><br />
+              {t('student.ecollab.description')}
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Highlight their best work and share it beyond the classroom or organization</li>
-              <li>Reflect on the creativity, effort, and learning behind their projects</li>
-              <li>Present a comprehensive view of their academic or professional growth</li>
-              <li>Share curated content with peers, mentors, employers, or admissions teams</li>
+              <li>{t('student.ecollab.bullets.item1')}</li>
+              <li>{t('student.ecollab.bullets.item2')}</li>
+              <li>{t('student.ecollab.bullets.item3')}</li>
+              <li>{t('student.ecollab.bullets.item4')}</li>
             </ul>
             <p>
-              <span className="font-semibold text-blue-700 dark:text-blue-400">eCollab puts users in control</span> — visibility settings can be set to private or public and adjusted at any time.
+              <span className="font-semibold text-blue-700 dark:text-blue-400">{t('student.ecollab.controlTitle')}</span>
+              {t('student.ecollab.controlText')}
             </p>
           </div>
         </div>
@@ -98,21 +101,21 @@ export default function Ecollab() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <MessageCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Discussion Board</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('student.ecollab.discussion.title')}</h2>
               </div>
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
                   value={newPost}
                   onChange={e => setNewPost(e.target.value)}
-                  placeholder="Share an idea, question, or achievement..."
+                  placeholder={t('student.ecollab.discussion.placeholder')}
                   className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                 />
                 <button
                   onClick={handlePost}
                   className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 dark:hover:bg-blue-800"
                 >
-                  <Send size={18} /> Post
+                  <Send size={18} /> {t('student.ecollab.discussion.postButton')}
                 </button>
               </div>
               <div className="space-y-6">
@@ -150,31 +153,31 @@ export default function Ecollab() {
                             type="text"
                             value={newReply}
                             onChange={e => setNewReply(e.target.value)}
-                            placeholder="Write a reply..."
+                            placeholder={t('student.ecollab.reply.placeholder')}
                             className="flex-1 px-3 py-1 border rounded-lg text-sm dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                           />
                           <button
                             onClick={() => handleReply(post.id)}
                             className="bg-purple-600 dark:bg-purple-700 text-white px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-purple-700 dark:hover:bg-purple-800 text-sm"
                           >
-                            <Send size={16} /> Reply
+                            <Send size={16} /> {t('student.ecollab.reply.button')}
                           </button>
                           <button
                             onClick={() => { setReplyingTo(null); setNewReply(''); }}
                             className="text-xs text-gray-400 dark:text-gray-300 hover:text-red-500"
-                          >Cancel</button>
+                          >{t('student.ecollab.reply.cancel')}</button>
                         </div>
                       ) : (
                         <button
                           onClick={() => { setReplyingTo(post.id); setNewReply(''); }}
                           className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2"
-                        >Reply</button>
+                        >{t('student.ecollab.reply.link')}</button>
                       )}
                     </div>
                   </div>
                 ))}
                 {posts.length === 0 && (
-                  <div className="text-gray-400 dark:text-gray-500 text-center py-8">No posts yet. Start the discussion!</div>
+                  <div className="text-gray-400 dark:text-gray-500 text-center py-8">{t('student.ecollab.emptyState')}</div>
                 )}
               </div>
             </div>
@@ -182,23 +185,23 @@ export default function Ecollab() {
           {/* Sidebar: Quick Links & Highlights */}
           <div className="w-full md:w-72 flex-shrink-0 flex flex-col gap-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-5">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2"><Users2 className="w-5 h-5 text-blue-500 dark:text-blue-400" /> Quick Links</h3>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2"><Users2 className="w-5 h-5 text-blue-500 dark:text-blue-400" /> {t('student.ecollab.quickLinks.title')}</h3>
               <ul className="space-y-2">
                 {quickLinks.map(link => (
                   <li key={link.label}>
                     <a href={link.href} className="flex items-center gap-2 text-blue-700 dark:text-blue-400 hover:underline">
-                      <link.icon className="w-5 h-5" /> {link.label}
+                      <link.icon className="w-5 h-5" /> {t(`student.ecollab.quickLinks.${link.label.replace(/\s/g, '').charAt(0).toLowerCase()}${link.label.replace(/\s/g, '').slice(1)}`)}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-5">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2"><Star className="w-5 h-5 text-yellow-500 dark:text-yellow-400" /> Recent Highlights</h3>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2"><Star className="w-5 h-5 text-yellow-500 dark:text-yellow-400" /> {t('student.ecollab.highlights.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                <li>Emily Brown shared a new project: <span className="font-semibold text-blue-700 dark:text-blue-400">Web Dev Portfolio</span></li>
-                <li>John Smith received feedback from Dr. Sarah Johnson</li>
-                <li>Mentor Connect: 2 new messages</li>
+                <li>{t('student.ecollab.highlights.line1')}</li>
+                <li>{t('student.ecollab.highlights.line2')}</li>
+                <li>{t('student.ecollab.highlights.line3')}</li>
               </ul>
             </div>
           </div>

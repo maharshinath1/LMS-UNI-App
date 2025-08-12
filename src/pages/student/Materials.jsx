@@ -15,6 +15,7 @@ import {
   FileArchive,
   FileCode
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const materials = [
   {
@@ -85,6 +86,7 @@ const materials = [
 ];
 
 function Materials() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
@@ -129,7 +131,9 @@ function Materials() {
   };
 
   const getTypeLabel = (type) => {
-    return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const key = type;
+    // Map to translation key under student.materials.types
+    return t(`student.materials.types.${key}`, type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
   };
 
   return (
@@ -139,7 +143,7 @@ function Materials() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Course Materials</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.materials.title')}</h1>
           </div>
 
           {/* Filters */}
@@ -149,7 +153,7 @@ function Materials() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
                 <input
                   type="text"
-                  placeholder="Search materials..."
+                  placeholder={t('student.materials.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
@@ -160,7 +164,7 @@ function Materials() {
                 onChange={(e) => setSelectedCourse(e.target.value)}
                 className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
               >
-                <option value="all">All Courses</option>
+                <option value="all">{t('student.materials.courses.all')}</option>
                 <option value="CS101">CS101 - Introduction to Computer Science</option>
                 <option value="CS201">CS201 - Data Structures and Algorithms</option>
                 <option value="CS301">CS301 - Web Development</option>
@@ -171,15 +175,15 @@ function Materials() {
                 onChange={(e) => setSelectedType(e.target.value)}
                 className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
               >
-                <option value="all">All Types</option>
-                <option value="lecture-notes">Lecture Notes</option>
-                <option value="assignment">Assignments</option>
-                <option value="project">Projects</option>
-                <option value="resource">Resources</option>
+                <option value="all">{t('student.materials.types.all')}</option>
+                <option value="lecture-notes">{t('student.materials.types.lecture-notes')}</option>
+                <option value="assignment">{t('student.materials.types.assignment')}</option>
+                <option value="project">{t('student.materials.types.project')}</option>
+                <option value="resource">{t('student.materials.types.resource')}</option>
               </select>
               <button className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
                 <Filter size={20} />
-                More Filters
+                {t('student.materials.filters')}
               </button>
             </div>
           </div>
@@ -222,19 +226,21 @@ function Materials() {
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Download className="h-4 w-4 mr-2" />
-                      <span>{material.downloads} downloads</span>
+                      <span>
+                        {t('student.materials.labels.downloadCount_other', { count: material.downloads })}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-500">
-                      Uploaded: {new Date(material.uploadedAt).toLocaleDateString()}
+                      {t('student.materials.labels.uploaded')}: {new Date(material.uploadedAt).toLocaleDateString()}
                     </span>
                     <button
                       onClick={() => setSelectedMaterial(material)}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
-                      View Details
+                      {t('student.materials.labels.viewDetails')}
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -259,36 +265,36 @@ function Materials() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Description</h3>
+                <h3 className="font-medium text-gray-900 mb-2">{t('student.materials.modal.description')}</h3>
                 <p className="text-sm text-gray-600">{selectedMaterial.description}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">File Information</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('student.materials.modal.fileInfo')}</h3>
                   <ul className="space-y-2">
                     <li className="text-sm text-gray-600">
-                      Format: {selectedMaterial.format.toUpperCase()}
+                      {t('student.materials.modal.format')}: {selectedMaterial.format.toUpperCase()}
                     </li>
                     <li className="text-sm text-gray-600">
-                      Size: {selectedMaterial.size}
+                      {t('student.materials.modal.size')}: {selectedMaterial.size}
                     </li>
                     <li className="text-sm text-gray-600">
-                      Downloads: {selectedMaterial.downloads}
+                      {t('student.materials.modal.downloads')}: {selectedMaterial.downloads}
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Course Information</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('student.materials.modal.courseInfo')}</h3>
                   <ul className="space-y-2">
                     <li className="text-sm text-gray-600">
-                      Instructor: {selectedMaterial.instructor}
+                      {t('student.materials.modal.instructor')}: {selectedMaterial.instructor}
                     </li>
                     <li className="text-sm text-gray-600">
-                      Type: {getTypeLabel(selectedMaterial.type)}
+                      {t('student.materials.modal.type')}: {getTypeLabel(selectedMaterial.type)}
                     </li>
                     <li className="text-sm text-gray-600">
-                      Uploaded: {new Date(selectedMaterial.uploadedAt).toLocaleString()}
+                      {t('student.materials.modal.uploaded')}: {new Date(selectedMaterial.uploadedAt).toLocaleString()}
                     </li>
                   </ul>
                 </div>
@@ -300,13 +306,13 @@ function Materials() {
                 onClick={() => setSelectedMaterial(null)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Close
+                {t('student.materials.modal.close')}
               </button>
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                Download
+                {t('student.materials.modal.download')}
               </button>
             </div>
           </div>

@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Filter
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const conversations = [
   {
@@ -90,6 +91,7 @@ const initialMessages = {
 };
 
 function Messages() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -184,7 +186,7 @@ function Messages() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
               <input
                 type="text"
-                placeholder="Search conversations..."
+                placeholder={t('student.messages.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
@@ -295,7 +297,7 @@ function Messages() {
                   {isReplying && (
                     <div className="flex justify-start">
                       <div className="max-w-[70%] rounded-lg p-3 bg-white border opacity-60 italic text-gray-400">
-                        Typing...
+                        {t('student.messages.typing')}
                       </div>
                     </div>
                   )}
@@ -314,7 +316,7 @@ function Messages() {
                     </button>
                     <input
                       type="text"
-                      placeholder="Type a message..."
+                      placeholder={t('student.messages.inputPlaceholder')}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       className="w-full pl-10 pr-24 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -328,22 +330,22 @@ function Messages() {
                         className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 flex items-center gap-2"
                       >
                         <Send size={16} />
-                        Send
+                        {t('student.messages.send')}
                       </button>
                     </div>
                   </div>
 
                   {/* Attachments Menu */}
                   {showAttachments && (
-                    <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border p-2">
+                    <div className="absolute bottom_full left-0 mb-2 bg-white rounded-lg shadow-lg border p-2 absolute bottom-full left-0 mb-2">
                       <div className="grid grid-cols-4 gap-2">
                         <button className="p-2 hover:bg-gray-100 rounded-lg flex flex-col items-center gap-1">
                           <ImageIcon size={20} className="text-blue-600" />
-                          <span className="text-xs">Image</span>
+                          <span className="text-xs">{t('student.messages.attachments.image')}</span>
                         </button>
                         <button className="p-2 hover:bg-gray-100 rounded-lg flex flex-col items-center gap-1">
                           <File size={20} className="text-blue-600" />
-                          <span className="text-xs">File</span>
+                          <span className="text-xs">{t('student.messages.attachments.file')}</span>
                         </button>
                       </div>
                     </div>
@@ -354,8 +356,8 @@ function Messages() {
           ) : (
             <div className="flex-1 flex items-center justify-center bg-gray-50">
               <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900">Select a conversation</h3>
-                <p className="text-gray-500">Choose a conversation to start messaging</p>
+                <h3 className="text-lg font-medium text-gray-900">{t('student.messages.empty.title')}</h3>
+                <p className="text-gray-500">{t('student.messages.empty.subtitle')}</p>
               </div>
             </div>
           )}

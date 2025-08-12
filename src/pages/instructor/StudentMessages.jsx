@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Send, Trash2, Plus, MessageSquare, User, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const dummyStudents = [
   { id: 1, name: 'Alice Johnson' },
@@ -15,6 +16,7 @@ const dummyMessages = [
 ];
 
 export default function StudentMessages() {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState(dummyMessages);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState(null);
@@ -58,20 +60,20 @@ export default function StudentMessages() {
       <div className="flex-1 overflow-auto p-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Student Messages</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.studentMessages.title')}</h1>
             <button onClick={openAddMessage} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2">
-              <Plus size={18} /> New Message
+              <Plus size={18} /> {t('instructor.studentMessages.new')}
             </button>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Search Student</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.studentMessages.searchLabel')}</label>
             <div className="relative">
-              <input type="text" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" placeholder="Search by name..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              <input type="text" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" placeholder={t('instructor.studentMessages.searchPlaceholder')} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               <Search className="absolute right-2 top-2 text-gray-400 dark:text-gray-500" size={18} />
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Student</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.studentMessages.selectLabel')}</label>
             <select className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" value={selectedStudent} onChange={e => setSelectedStudent(Number(e.target.value))}>
               {filteredStudents.map(student => (
                 <option key={student.id} value={student.id}>{student.name}</option>
@@ -98,12 +100,12 @@ export default function StudentMessages() {
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 relative animate-fadeIn">
               <button className="absolute top-4 right-4 text-gray-400 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onClick={closeModal}><Trash2 size={28} /></button>
-              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-400 mb-4">{modalMessage.id ? 'Edit Message' : 'New Message'}</h2>
+              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-400 mb-4">{modalMessage.id ? t('instructor.studentMessages.modal.editTitle') : t('instructor.studentMessages.modal.newTitle')}</h2>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Message</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.studentMessages.modal.fieldMessage')}</label>
                 <textarea className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" rows={4} value={modalMessage.message} onChange={e => setModalMessage({ ...modalMessage, message: e.target.value })} />
               </div>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveMessage}>{modalMessage.id ? 'Save Changes' : 'Send Message'}</button>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveMessage}>{modalMessage.id ? t('instructor.studentMessages.actions.saveChanges') : t('instructor.studentMessages.actions.send')}</button>
             </div>
           </div>
         )}

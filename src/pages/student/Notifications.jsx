@@ -15,6 +15,7 @@ import {
   ChevronRight,
   X
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const notifications = [
   {
@@ -70,6 +71,7 @@ const notifications = [
 ];
 
 function Notifications() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
@@ -121,13 +123,13 @@ function Notifications() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Notifications</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.notifications.title')}</h1>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
             >
               <Filter size={20} />
-              Filters
+              {t('student.notifications.filters')}
             </button>
           </div>
 
@@ -137,7 +139,7 @@ function Notifications() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
               <input
                 type="text"
-                placeholder="Search notifications..."
+                placeholder={t('student.notifications.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
@@ -151,22 +153,22 @@ function Notifications() {
                   onChange={(e) => setSelectedType(e.target.value)}
                   className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Types</option>
-                  <option value="assignment">Assignments</option>
-                  <option value="grade">Grades</option>
-                  <option value="announcement">Announcements</option>
-                  <option value="material">Course Materials</option>
-                  <option value="exam">Exams</option>
+                  <option value="all">{t('student.notifications.types.all')}</option>
+                  <option value="assignment">{t('student.notifications.types.assignment')}</option>
+                  <option value="grade">{t('student.notifications.types.grade')}</option>
+                  <option value="announcement">{t('student.notifications.types.announcement')}</option>
+                  <option value="material">{t('student.notifications.types.material')}</option>
+                  <option value="exam">{t('student.notifications.types.exam')}</option>
                 </select>
                 <select
                   value={selectedPriority}
                   onChange={(e) => setSelectedPriority(e.target.value)}
                   className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Priorities</option>
-                  <option value="high">High Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="low">Low Priority</option>
+                  <option value="all">{t('student.notifications.priorities.all')}</option>
+                  <option value="high">{t('student.notifications.priorities.high')}</option>
+                  <option value="medium">{t('student.notifications.priorities.medium')}</option>
+                  <option value="low">{t('student.notifications.priorities.low')}</option>
                 </select>
               </div>
             )}
@@ -192,7 +194,7 @@ function Notifications() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(notification.priority)}`}>
-                            {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)} Priority
+                            {t(`student.notifications.priorities.${notification.priority}`)}
                           </span>
                           <span className="text-sm text-gray-500 dark:text-gray-400">{notification.time}</span>
                         </div>
@@ -208,8 +210,8 @@ function Notifications() {
           {filteredNotifications.length === 0 && (
             <div className="text-center py-12">
               <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No notifications found</h3>
-              <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters</p>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t('student.notifications.empty.title')}</h3>
+              <p className="text-gray-500 dark:text-gray-400">{t('student.notifications.empty.subtitle')}</p>
             </div>
           )}
         </div>

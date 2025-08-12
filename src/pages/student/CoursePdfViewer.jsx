@@ -1,13 +1,15 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function CoursePdfViewer() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   // PDF URL can be passed via state or query param
   const pdfUrl = location.state?.pdfUrl || '';
-  const title = location.state?.title || 'PDF Viewer';
+  const title = location.state?.title || t('student.pdfViewer.title');
 
   return (
     <div
@@ -20,7 +22,7 @@ function CoursePdfViewer() {
         <button
           onClick={() => navigate(-1)}
           className="text-white hover:text-red-400 p-2 rounded-full"
-          aria-label="Close PDF"
+          aria-label={t('student.pdfViewer.close')}
         >
           <X size={28} />
         </button>
@@ -30,7 +32,7 @@ function CoursePdfViewer() {
           <>
             <iframe
               src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-              title="Course PDF"
+              title={t('student.pdfViewer.iframeTitle')}
               className="w-full h-full min-h-[80vh] pointer-events-auto"
               style={{ border: 'none', pointerEvents: 'auto' }}
               allowFullScreen
@@ -39,7 +41,7 @@ function CoursePdfViewer() {
             {/* <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }} /> */}
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-white">PDF not found.</div>
+          <div className="flex items-center justify-center h-full text-white">{t('student.pdfViewer.notFound')}</div>
         )}
       </div>
     </div>

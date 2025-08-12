@@ -20,6 +20,7 @@ import {
   FileText,
   BarChart2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const courses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -64,6 +65,7 @@ const assignments = [
 ];
 
 export default function Assignments() {
+  const { t } = useTranslation();
   const [selectedCourse, setSelectedCourse] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState(null);
@@ -84,13 +86,13 @@ export default function Assignments() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Assignment Management</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.assignments.title')}</h1>
             <button
               onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
             >
               <Plus size={20} />
-              Create Assignment
+              {t('instructor.assignments.create')}
             </button>
           </div>
 
@@ -101,7 +103,7 @@ export default function Assignments() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
                 <input
                   type="text"
-                  placeholder="Search assignments..."
+                  placeholder={t('instructor.assignments.filters.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
@@ -112,7 +114,7 @@ export default function Assignments() {
                 onChange={(e) => setSelectedCourse(e.target.value)}
                 className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
               >
-                <option value="">All Courses</option>
+                <option value="">{t('instructor.assignments.filters.allCourses')}</option>
                 {courses.map(course => (
                   <option key={course.id} value={course.code}>{course.code} - {course.name}</option>
                 ))}
@@ -122,14 +124,14 @@ export default function Assignments() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
               >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="draft">Draft</option>
+                <option value="all">{t('instructor.assignments.filters.allStatus')}</option>
+                <option value="active">{t('instructor.assignments.filters.status.active')}</option>
+                <option value="completed">{t('instructor.assignments.filters.status.completed')}</option>
+                <option value="draft">{t('instructor.assignments.filters.status.draft')}</option>
               </select>
               <button className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100">
                 <Filter size={20} />
-                More Filters
+                {t('instructor.assignments.filters.moreFilters')}
               </button>
             </div>
           </div>
@@ -155,19 +157,19 @@ export default function Assignments() {
                         <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
                           <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Eye size={16} className="mr-2" />
-                            View Details
+                            {t('instructor.assignments.menu.viewDetails')}
                           </button>
                           <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Edit size={16} className="mr-2" />
-                            Edit
+                            {t('instructor.assignments.menu.edit')}
                           </button>
                           <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Download size={16} className="mr-2" />
-                            Download Submissions
+                            {t('instructor.assignments.menu.download')}
                           </button>
                           <button className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Trash2 size={16} className="mr-2" />
-                            Delete
+                            {t('instructor.assignments.menu.delete')}
                           </button>
                         </div>
                       )}
@@ -175,19 +177,19 @@ export default function Assignments() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-300">Due Date</span>
+                      <span className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.card.dueDate')}</span>
                       <span className="font-medium text-gray-700 dark:text-gray-100">{assignment.dueDate}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-300">Submissions</span>
+                      <span className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.card.submissions')}</span>
                       <span className="font-medium text-gray-700 dark:text-gray-100">{assignment.submissions}/{assignment.totalStudents}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-300">Type</span>
+                      <span className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.card.type')}</span>
                       <span className="font-medium text-gray-700 dark:text-gray-100">{assignment.type}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-300">Points</span>
+                      <span className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.card.points')}</span>
                       <span className="font-medium text-gray-700 dark:text-gray-100">{assignment.points}</span>
                     </div>
                   </div>
@@ -198,10 +200,10 @@ export default function Assignments() {
                         assignment.status === 'completed' ? 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-300' :
                         'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
-                        {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                        {t(`instructor.assignments.card.status.${assignment.status}`)}
                       </span>
                       <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 text-sm font-medium">
-                        View Submissions
+                        {t('instructor.assignments.card.viewSubmissions')}
                       </button>
                     </div>
                   </div>
@@ -218,7 +220,7 @@ export default function Assignments() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-2xl">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Create New Assignment</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.assignments.modal.title')}</h2>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
@@ -228,7 +230,7 @@ export default function Assignments() {
               </div>
               <form className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Course</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.course')}</label>
                   <select className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
                     {courses.map(course => (
                       <option key={course.id} value={course.code}>{course.code} - {course.name}</option>
@@ -236,40 +238,40 @@ export default function Assignments() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.title')}</label>
                   <input
                     type="text"
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
-                    placeholder="Enter assignment title"
+                    placeholder={t('instructor.assignments.modal.fields.titlePlaceholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.description')}</label>
                   <textarea
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                     rows="4"
-                    placeholder="Enter assignment description"
+                    placeholder={t('instructor.assignments.modal.fields.descriptionPlaceholder')}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Due Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.dueDate')}</label>
                     <input
                       type="date"
                       className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Points</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.points')}</label>
                     <input
                       type="number"
                       className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
-                      placeholder="Enter points"
+                      placeholder={t('instructor.assignments.modal.fields.pointsPlaceholder')}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Assignment Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.type')}</label>
                   <select className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
                     <option value="Programming">Programming</option>
                     <option value="Project">Project</option>
@@ -278,10 +280,10 @@ export default function Assignments() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload Files</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.uploadFiles')}</label>
                   <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
                     <Upload size={24} className="mx-auto text-gray-400 dark:text-gray-500 mb-2" />
-                    <p className="text-sm text-gray-500 dark:text-gray-300">Drag and drop files here or click to browse</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300">{t('instructor.assignments.modal.fields.dragHint')}</p>
                     <input type="file" className="hidden" />
                   </div>
                 </div>
@@ -291,13 +293,13 @@ export default function Assignments() {
                     onClick={() => setShowCreateModal(false)}
                     className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                   >
-                    Cancel
+                    {t('instructor.assignments.modal.actions.cancel')}
                   </button>
                   <button
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
                   >
-                    Create Assignment
+                    {t('instructor.assignments.modal.actions.create')}
                   </button>
                 </div>
               </form>

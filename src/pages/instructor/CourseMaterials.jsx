@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { FileText, Upload, Edit, Trash2, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const dummyCourses = [
   { id: 1, name: 'CS101' },
@@ -16,6 +17,7 @@ const dummyMaterials = [
 ];
 
 export default function CourseMaterials() {
+  const { t } = useTranslation();
   const [materials, setMaterials] = useState(dummyMaterials);
   const [showModal, setShowModal] = useState(false);
   const [modalMaterial, setModalMaterial] = useState(null);
@@ -63,13 +65,13 @@ export default function CourseMaterials() {
       <div className="flex-1 overflow-auto p-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Course Materials</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.courseMaterials.title')}</h1>
             <button onClick={openAddMaterial} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 flex items-center gap-2">
-              <Plus size={18} /> Add Material
+              <Plus size={18} /> {t('instructor.courseMaterials.add')}
             </button>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Course</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.courseMaterials.selectCourse')}</label>
             <select className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" value={selectedCourse} onChange={e => setSelectedCourse(Number(e.target.value))}>
               {dummyCourses.map(course => (
                 <option key={course.id} value={course.id}>{course.name}</option>
@@ -86,9 +88,9 @@ export default function CourseMaterials() {
                     <button onClick={() => deleteMaterial(material.id)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"><Trash2 size={18} /></button>
                   </div>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-300">{material.type}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-300">File: {material.file}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-300">Uploaded: {material.uploadDate}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300">{t('instructor.courseMaterials.card.type')}: {t(`instructor.courseMaterials.modal.types.${material.type}`)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300">{t('instructor.courseMaterials.card.file')}: {material.file}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300">{t('instructor.courseMaterials.card.uploaded')}: {material.uploadDate}</p>
               </div>
             ))}
           </div>
@@ -97,29 +99,29 @@ export default function CourseMaterials() {
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 relative animate-fadeIn">
               <button className="absolute top-4 right-4 text-gray-400 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100" onClick={closeModal}><Trash2 size={28} /></button>
-              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-400 mb-4">{modalMaterial.id ? 'Edit Material' : 'Add Material'}</h2>
+              <h2 className="text-xl font-bold text-blue-700 dark:text-blue-400 mb-4">{modalMaterial.id ? t('instructor.courseMaterials.modal.editTitle') : t('instructor.courseMaterials.modal.newTitle')}</h2>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Title</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.courseMaterials.modal.fields.title')}</label>
                 <input type="text" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" value={modalMaterial.title} onChange={e => setModalMaterial({ ...modalMaterial, title: e.target.value })} />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.courseMaterials.modal.fields.type')}</label>
                 <select className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" value={modalMaterial.type} onChange={e => setModalMaterial({ ...modalMaterial, type: e.target.value })}>
-                  <option value="syllabus">Syllabus</option>
-                  <option value="study">Study Guide</option>
-                  <option value="assignment">Assignment</option>
-                  <option value="quiz">Quiz</option>
+                  <option value="syllabus">{t('instructor.courseMaterials.modal.types.syllabus')}</option>
+                  <option value="study">{t('instructor.courseMaterials.modal.types.study')}</option>
+                  <option value="assignment">{t('instructor.courseMaterials.modal.types.assignment')}</option>
+                  <option value="quiz">{t('instructor.courseMaterials.modal.types.quiz')}</option>
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">File</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.courseMaterials.modal.fields.file')}</label>
                 <input type="file" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" onChange={handleFileChange} />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Upload Date</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.courseMaterials.modal.fields.uploadDate')}</label>
                 <input type="date" className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-full dark:bg-gray-900 dark:text-gray-100" value={modalMaterial.uploadDate} onChange={e => setModalMaterial({ ...modalMaterial, uploadDate: e.target.value })} />
               </div>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveMaterial}>{modalMaterial.id ? 'Save Changes' : 'Add Material'}</button>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveMaterial}>{modalMaterial.id ? t('instructor.courseMaterials.modal.actions.save') : t('instructor.courseMaterials.modal.actions.add')}</button>
             </div>
           </div>
         )}

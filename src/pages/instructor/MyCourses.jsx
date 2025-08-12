@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, Users2, Edit, Trash2, Plus, FileText, Video, Upload, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const dummyCourses = [
   {
@@ -10,19 +11,8 @@ const dummyCourses = [
     semester: 'Fall 2024',
     students: 45,
     weeks: [
-      {
-        title: 'Week 1: Introduction',
-        content: [
-          { type: 'pdf', name: 'Syllabus.pdf', url: '#', id: 1 },
-          { type: 'video', name: 'Welcome.mp4', url: '#', id: 2 },
-        ],
-      },
-      {
-        title: 'Week 2: Programming Basics',
-        content: [
-          { type: 'pdf', name: 'Lecture1.pdf', url: '#', id: 3 },
-        ],
-      },
+      { title: 'Week 1: Introduction', content: [ { type: 'pdf', name: 'Syllabus.pdf', url: '#', id: 1 }, { type: 'video', name: 'Welcome.mp4', url: '#', id: 2 } ] },
+      { title: 'Week 2: Programming Basics', content: [ { type: 'pdf', name: 'Lecture1.pdf', url: '#', id: 3 } ] },
     ],
     cover: '',
     lastUpdated: '2024-06-10',
@@ -33,14 +23,7 @@ const dummyCourses = [
     name: 'Machine Learning',
     semester: 'Spring 2025',
     students: 38,
-    weeks: [
-      {
-        title: 'Week 1: ML Overview',
-        content: [
-          { type: 'pdf', name: 'ML_Intro.pdf', url: '#', id: 4 },
-        ],
-      },
-    ],
+    weeks: [ { title: 'Week 1: ML Overview', content: [ { type: 'pdf', name: 'ML_Intro.pdf', url: '#', id: 4 } ] } ],
     cover: '',
     lastUpdated: '2024-06-08',
   },
@@ -50,10 +33,7 @@ const dummyCourses = [
     name: 'Data Structures',
     semester: 'Fall 2024',
     students: 52,
-    weeks: [
-      { title: 'Week 1: Arrays & Lists', content: [ { type: 'pdf', name: 'Arrays.pdf', url: '#', id: 5 } ] },
-      { title: 'Week 2: Trees', content: [] },
-    ],
+    weeks: [ { title: 'Week 1: Arrays & Lists', content: [ { type: 'pdf', name: 'Arrays.pdf', url: '#', id: 5 } ] }, { title: 'Week 2: Trees', content: [] } ],
     cover: '',
     lastUpdated: '2024-06-09',
   },
@@ -63,9 +43,7 @@ const dummyCourses = [
     name: 'Artificial Intelligence',
     semester: 'Spring 2025',
     students: 29,
-    weeks: [
-      { title: 'Week 1: AI Basics', content: [ { type: 'video', name: 'AI_Intro.mp4', url: '#', id: 6 } ] },
-    ],
+    weeks: [ { title: 'Week 1: AI Basics', content: [ { type: 'video', name: 'AI_Intro.mp4', url: '#', id: 6 } ] } ],
     cover: '',
     lastUpdated: '2024-06-07',
   },
@@ -75,10 +53,7 @@ const dummyCourses = [
     name: 'Web Development',
     semester: 'Fall 2024',
     students: 41,
-    weeks: [
-      { title: 'Week 1: HTML & CSS', content: [ { type: 'pdf', name: 'HTML_Basics.pdf', url: '#', id: 7 } ] },
-      { title: 'Week 2: JavaScript', content: [] },
-    ],
+    weeks: [ { title: 'Week 1: HTML & CSS', content: [ { type: 'pdf', name: 'HTML_Basics.pdf', url: '#', id: 7 } ] }, { title: 'Week 2: JavaScript', content: [] } ],
     cover: '',
     lastUpdated: '2024-06-06',
   },
@@ -88,9 +63,7 @@ const dummyCourses = [
     name: 'Database Systems',
     semester: 'Spring 2025',
     students: 36,
-    weeks: [
-      { title: 'Week 1: Relational DBs', content: [ { type: 'pdf', name: 'RelationalDBs.pdf', url: '#', id: 8 } ] },
-    ],
+    weeks: [ { title: 'Week 1: Relational DBs', content: [ { type: 'pdf', name: 'RelationalDBs.pdf', url: '#', id: 8 } ] } ],
     cover: '',
     lastUpdated: '2024-06-05',
   },
@@ -100,9 +73,7 @@ const dummyCourses = [
     name: 'Software Engineering',
     semester: 'Fall 2024',
     students: 33,
-    weeks: [
-      { title: 'Week 1: SDLC', content: [ { type: 'pdf', name: 'SDLC.pdf', url: '#', id: 9 } ] },
-    ],
+    weeks: [ { title: 'Week 1: SDLC', content: [ { type: 'pdf', name: 'SDLC.pdf', url: '#', id: 9 } ] } ],
     cover: '',
     lastUpdated: '2024-06-04',
   },
@@ -114,6 +85,7 @@ const fileIcons = {
 };
 
 export default function MyCourses() {
+  const { t } = useTranslation();
   const [courses, setCourses] = useState(dummyCourses);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -126,7 +98,6 @@ export default function MyCourses() {
   const [showAddWeek, setShowAddWeek] = useState(false);
   const [newWeekTitle, setNewWeekTitle] = useState("");
 
-  // Open modal for course
   const openCourse = (course) => {
     setSelectedCourse(course);
     setShowModal(true);
@@ -135,7 +106,6 @@ export default function MyCourses() {
     setEditTitle('');
   };
 
-  // Close modal
   const closeModal = () => {
     setShowModal(false);
     setSelectedCourse(null);
@@ -144,20 +114,17 @@ export default function MyCourses() {
     setEditTitle('');
   };
 
-  // Expand/collapse week
   const toggleWeek = (idx) => {
     setExpandedWeek(expandedWeek === idx ? null : idx);
     setEditWeekIdx(null);
     setEditTitle('');
   };
 
-  // Start editing week title
   const startEditWeek = (idx, title) => {
     setEditWeekIdx(idx);
     setEditTitle(title);
   };
 
-  // Save edited week title
   const saveEditWeek = (idx) => {
     const updated = { ...selectedCourse };
     updated.weeks[idx].title = editTitle;
@@ -166,29 +133,21 @@ export default function MyCourses() {
     setEditTitle('');
   };
 
-  // Delete content
   const deleteContent = (weekIdx, contentIdx) => {
     const updated = { ...selectedCourse };
     updated.weeks[weekIdx].content.splice(contentIdx, 1);
     updateCourse(updated);
   };
 
-  // Handle file upload (mock)
   const handleFileUpload = (weekIdx) => {
     if (!newFile) return;
     const updated = { ...selectedCourse };
-    updated.weeks[weekIdx].content.push({
-      type: newFileType,
-      name: newFile.name,
-      url: '#',
-      id: Date.now(),
-    });
+    updated.weeks[weekIdx].content.push({ type: newFileType, name: newFile.name, url: '#', id: Date.now() });
     updateCourse(updated);
     setNewFile(null);
     setUploadingWeek(null);
   };
 
-  // Update course in courses array
   const updateCourse = (updatedCourse) => {
     setCourses((prev) => prev.map((c) => (c.id === updatedCourse.id ? updatedCourse : c)));
     setSelectedCourse(updatedCourse);
@@ -198,7 +157,7 @@ export default function MyCourses() {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="instructor" />
       <div className="flex-1 overflow-auto p-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">My Courses</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">{t('instructor.myCourses.title')}</h1>
         {/* Courses Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => (
@@ -211,11 +170,11 @@ export default function MyCourses() {
                 </div>
               </div>
               <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-300 mt-2">
-                <span><Users2 size={16} className="inline mr-1" /> {course.students} students</span>
-                <span><FileText size={16} className="inline mr-1" /> {course.weeks.length} weeks</span>
+                <span><Users2 size={16} className="inline mr-1" /> {t('instructor.myCourses.students', { count: course.students })}</span>
+                <span><FileText size={16} className="inline mr-1" /> {t('instructor.myCourses.weeks', { count: course.weeks.length })}</span>
               </div>
-              <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">Last updated: {course.lastUpdated}</div>
-              <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition self-start">View / Edit</button>
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">{t('instructor.myCourses.lastUpdated', { date: course.lastUpdated })}</div>
+              <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition self-start">{t('instructor.myCourses.viewEdit')}</button>
             </div>
           ))}
         </div>
@@ -233,8 +192,8 @@ export default function MyCourses() {
                       {editWeekIdx === idx ? (
                         <div className="flex gap-2 items-center w-full">
                           <input className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 flex-1 dark:bg-gray-800 dark:text-gray-100" value={editTitle} onChange={e => setEditTitle(e.target.value)} />
-                          <button className="px-2 py-1 bg-blue-600 text-white rounded dark:bg-blue-700 dark:hover:bg-blue-800" onClick={() => saveEditWeek(idx)}>Save</button>
-                          <button className="px-2 py-1 bg-gray-300 dark:bg-gray-700 rounded" onClick={() => setEditWeekIdx(null)}>Cancel</button>
+                          <button className="px-2 py-1 bg-blue-600 text-white rounded dark:bg-blue-700 dark:hover:bg-blue-800" onClick={() => saveEditWeek(idx)}>{t('instructor.myCourses.modal.save')}</button>
+                          <button className="px-2 py-1 bg-gray-300 dark:bg-gray-700 rounded" onClick={() => setEditWeekIdx(null)}>{t('instructor.myCourses.modal.cancel')}</button>
                         </div>
                       ) : (
                         <div className="flex gap-2 items-center">
@@ -242,26 +201,24 @@ export default function MyCourses() {
                           <button className="text-blue-600 dark:text-blue-400 hover:underline text-xs" onClick={() => startEditWeek(idx, week.title)}><Edit size={16} /></button>
                         </div>
                       )}
-                      <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded flex items-center gap-1 text-xs dark:bg-green-700 dark:hover:bg-green-800" onClick={() => setUploadingWeek(idx)}><Upload size={16}/> Add Content</button>
+                      <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded flex items-center gap-1 text-xs dark:bg-green-700 dark:hover:bg-green-800" onClick={() => setUploadingWeek(idx)}><Upload size={16}/> {t('instructor.myCourses.modal.addContent')}</button>
                     </div>
-                    {/* Upload Area */}
                     {uploadingWeek === idx && (
                       <div className="mt-3 flex flex-col gap-2 bg-white dark:bg-gray-800 p-3 rounded border border-blue-200 dark:border-blue-700">
                         <div className="flex gap-2 items-center">
                           <select value={newFileType} onChange={e => setNewFileType(e.target.value)} className="border rounded px-2 py-1">
-                            <option value="pdf">PDF</option>
-                            <option value="video">Video</option>
+                            <option value="pdf">{t('instructor.myCourses.modal.type.pdf')}</option>
+                            <option value="video">{t('instructor.myCourses.modal.type.video')}</option>
                           </select>
                           <input type="file" accept={newFileType === 'pdf' ? '.pdf' : 'video/*'} onChange={e => setNewFile(e.target.files[0])} />
-                          <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={() => handleFileUpload(idx)}>Upload</button>
-                          <button className="px-3 py-1 bg-gray-300 rounded" onClick={() => setUploadingWeek(null)}>Cancel</button>
+                          <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={() => handleFileUpload(idx)}>{t('instructor.myCourses.modal.upload')}</button>
+                          <button className="px-3 py-1 bg-gray-300 rounded" onClick={() => setUploadingWeek(null)}>{t('instructor.myCourses.modal.cancel')}</button>
                         </div>
-                        {newFile && <div className="text-xs text-gray-500">Selected: {newFile.name}</div>}
+                        {newFile && <div className="text-xs text-gray-500">{t('instructor.myCourses.modal.selected', { name: newFile.name })}</div>}
                       </div>
                     )}
-                    {/* Content List */}
                     <div className="mt-3 flex flex-col gap-2">
-                      {week.content.length === 0 && <div className="text-gray-400 text-sm">No content uploaded yet.</div>}
+                      {week.content.length === 0 && <div className="text-gray-400 text-sm">{t('instructor.myCourses.modal.noContent')}</div>}
                       {week.content.map((item, cidx) => {
                         const Icon = fileIcons[item.type];
                         return (
@@ -275,39 +232,29 @@ export default function MyCourses() {
                     </div>
                   </div>
                 ))}
-                {/* Add Week Section */}
                 <div className="mt-6">
                   {showAddWeek ? (
                     <div className="flex gap-2 items-center">
                       <input
                         className="border rounded px-2 py-1 flex-1"
-                        placeholder="Week title (e.g. Week 3: Deep Learning)"
+                        placeholder={t('instructor.myCourses.addWeek.placeholder')}
                         value={newWeekTitle}
                         onChange={e => setNewWeekTitle(e.target.value)}
                         autoFocus
                       />
-                      <button
-                        className="px-3 py-1 bg-blue-600 text-white rounded"
-                        onClick={() => {
-                          if (!newWeekTitle.trim()) return;
-                          const updated = { ...selectedCourse };
-                          updated.weeks.push({ title: newWeekTitle.trim(), content: [] });
-                          updateCourse(updated);
-                          setShowAddWeek(false);
-                          setNewWeekTitle("");
-                        }}
-                      >Add</button>
-                      <button
-                        className="px-3 py-1 bg-gray-300 rounded"
-                        onClick={() => { setShowAddWeek(false); setNewWeekTitle(""); }}
-                      >Cancel</button>
+                      <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={() => {
+                        if (!newWeekTitle.trim()) return;
+                        const updated = { ...selectedCourse };
+                        updated.weeks.push({ title: newWeekTitle.trim(), content: [] });
+                        updateCourse(updated);
+                        setShowAddWeek(false);
+                        setNewWeekTitle("");
+                      }}>{t('instructor.myCourses.addWeek.add')}</button>
+                      <button className="px-3 py-1 bg-gray-300 rounded" onClick={() => { setShowAddWeek(false); setNewWeekTitle(""); }}>{t('instructor.myCourses.addWeek.cancel')}</button>
                     </div>
                   ) : (
-                    <button
-                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold hover:bg-blue-200 transition"
-                      onClick={() => setShowAddWeek(true)}
-                    >
-                      + Add Week
+                    <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold hover:bg-blue-200 transition" onClick={() => setShowAddWeek(true)}>
+                      {t('instructor.myCourses.addWeek.open')}
                     </button>
                   )}
                 </div>

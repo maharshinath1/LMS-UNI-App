@@ -12,6 +12,7 @@ import {
   Filter,
   ChevronRight
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const assignments = [
   {
@@ -50,6 +51,7 @@ const assignments = [
 ];
 
 function Assignments() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
@@ -81,7 +83,7 @@ function Assignments() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">My Assignments</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.assignments.title')}</h1>
           </div>
 
           {/* Filters */}
@@ -91,7 +93,7 @@ function Assignments() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
                 <input
                   type="text"
-                  placeholder="Search assignments..."
+                  placeholder={t('student.assignments.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
@@ -102,14 +104,14 @@ function Assignments() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
               >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="submitted">Submitted</option>
-                <option value="overdue">Overdue</option>
+                <option value="all">{t('student.assignments.status.all')}</option>
+                <option value="pending">{t('student.assignments.status.pending')}</option>
+                <option value="submitted">{t('student.assignments.status.submitted')}</option>
+                <option value="overdue">{t('student.assignments.status.overdue')}</option>
               </select>
               <button className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
                 <Filter size={20} />
-                More Filters
+                {t('student.assignments.filters')}
               </button>
             </div>
           </div>
@@ -127,28 +129,28 @@ function Assignments() {
                       <h3 className="font-semibold text-gray-800 dark:text-gray-100">{assignment.title}</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-300">{assignment.course}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(assignment.status)} dark:bg-opacity-80`}> {/* Add dark mode bg if needed */}
-                      {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(assignment.status)} dark:bg-opacity-80`}>
+                      {t(`student.assignments.status.${assignment.status}`)}
                     </span>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <span>Due: {new Date(assignment.dueDate).toLocaleString()}</span>
+                      <span>{t('student.assignments.list.due')}: {new Date(assignment.dueDate).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <FileText className="h-4 w-4 mr-2" />
-                      <span>Type: {assignment.type}</span>
+                      <span>{t('student.assignments.list.type')}: {assignment.type}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <ClipboardList className="h-4 w-4 mr-2" />
-                      <span>Points: {assignment.points}</span>
+                      <span>{t('student.assignments.list.points')}: {assignment.points}</span>
                     </div>
                     {assignment.submittedAt && (
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                        <span>Submitted: {new Date(assignment.submittedAt).toLocaleString()}</span>
+                        <span>{t('student.assignments.list.submitted')}: {new Date(assignment.submittedAt).toLocaleString()}</span>
                       </div>
                     )}
                   </div>
@@ -157,7 +159,7 @@ function Assignments() {
                     onClick={() => setSelectedAssignment(assignment)}
                     className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    {assignment.status === 'pending' ? 'Submit Assignment' : 'View Details'}
+                    {assignment.status === 'pending' ? t('student.assignments.buttons.submit') : t('student.assignments.buttons.viewDetails')}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </button>
                 </div>
@@ -176,31 +178,31 @@ function Assignments() {
               <p className="text-gray-600 dark:text-gray-300">{selectedAssignment.description}</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Assignment Details</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">{t('student.assignments.modal.details')}</h3>
                   <ul className="mt-2 space-y-2">
                     <li className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <FileText className="h-4 w-4 mr-2" />
-                      <span>Type: {selectedAssignment.type}</span>
+                      <span>{t('student.assignments.list.type')}: {selectedAssignment.type}</span>
                     </li>
                     <li className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <span>Due Date: {new Date(selectedAssignment.dueDate).toLocaleString()}</span>
+                      <span>{t('student.assignments.modal.dueDate')}: {new Date(selectedAssignment.dueDate).toLocaleString()}</span>
                     </li>
                     <li className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <ClipboardList className="h-4 w-4 mr-2" />
-                      <span>Points: {selectedAssignment.points}</span>
+                      <span>{t('student.assignments.list.points')}: {selectedAssignment.points}</span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Submission Status</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">{t('student.assignments.modal.submission')}</h3>
                   <ul className="mt-2 space-y-2">
                     <li className="text-sm text-gray-600 dark:text-gray-300">
-                      Status: {selectedAssignment.status.charAt(0).toUpperCase() + selectedAssignment.status.slice(1)}
+                      {t('student.assignments.modal.status')}: {t(`student.assignments.status.${selectedAssignment.status}`)}
                     </li>
                     {selectedAssignment.submittedAt && (
                       <li className="text-sm text-gray-600 dark:text-gray-300">
-                        Submitted: {new Date(selectedAssignment.submittedAt).toLocaleString()}
+                        {t('student.assignments.modal.submitted')}: {new Date(selectedAssignment.submittedAt).toLocaleString()}
                       </li>
                     )}
                   </ul>
@@ -209,10 +211,10 @@ function Assignments() {
 
               {selectedAssignment.status === 'pending' && (
                 <div className="mt-4">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Submit Assignment</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">{t('student.assignments.buttons.submit')}</h3>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500">Drag and drop files here or click to browse</p>
+                    <p className="text-sm text-gray-500">{t('student.assignments.modal.dropHint')}</p>
                     <input type="file" className="hidden" />
                   </div>
                 </div>
@@ -223,13 +225,13 @@ function Assignments() {
                 onClick={() => setSelectedAssignment(null)}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Close
+                {t('student.assignments.modal.close')}
               </button>
               {selectedAssignment.status === 'pending' && (
                 <button
                   className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Submit Assignment
+                  {t('student.assignments.modal.submit')}
                 </button>
               )}
             </div>
