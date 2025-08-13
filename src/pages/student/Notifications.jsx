@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { 
   Bell,
@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const notifications = [
   {
@@ -76,6 +77,7 @@ function Notifications() {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const { startTour } = useTour();
 
   const filteredNotifications = notifications.filter(notification => {
     const matchesSearch = notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -116,6 +118,67 @@ function Notifications() {
     }
   };
 
+  const startNotificationsTour = () => {
+    const steps = [
+      { 
+        target: '#notifications-search', 
+        title: t('student.tour.notifications.title', 'Search Notifications'), 
+        content: t('student.tour.notifications.desc', 'Search notifications by keyword, course, or message content.'),
+        placement: 'bottom',
+        disableBeacon: true
+      },
+      { 
+        target: '#toggle-notifications-filters', 
+        title: t('student.tour.notifications.toggleTitle', 'Filter Options'), 
+        content: t('student.tour.notifications.toggleDesc', 'Open filter menu to organize notifications by type and priority.'),
+        placement: 'bottom',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="notifications-filters"]', 
+        title: t('student.tour.notifications.filtersTitle', 'Filter Controls'), 
+        content: t('student.tour.notifications.filtersDesc', 'Filter by notification type and priority level.'),
+        placement: 'top-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="notifications-list"]', 
+        title: t('student.tour.notifications.listTitle', 'Notifications Feed'), 
+        content: t('student.tour.notifications.listDesc', 'View all notifications with course, time, and priority indicators.'),
+        placement: 'top-start',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:notifications:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:notifications:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:notifications:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startNotificationsTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startNotificationsTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="student" />
@@ -127,6 +190,7 @@ function Notifications() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+              id="toggle-notifications-filters"
             >
               <Filter size={20} />
               {t('student.notifications.filters')}
@@ -143,11 +207,12 @@ function Notifications() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                id="notifications-search"
               />
             </div>
 
             {showFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="notifications-filters">
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
@@ -175,7 +240,7 @@ function Notifications() {
           </div>
 
           {/* Notifications List */}
-          <div className="space-y-4">
+          <div className="space-y-4" data-tour="notifications-list">
             {filteredNotifications.map(notification => (
               <div
                 key={notification.id}

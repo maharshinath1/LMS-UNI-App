@@ -101,29 +101,29 @@ export default function Notifications() {
       <div className="flex-1 overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.title')}</h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.title', 'Notifications & Queries')}</h1>
             <button
               onClick={openNotifModal}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
             >
               <Plus size={20} />
-              <span>{t('admin.notifications.actions.sendNotification')}</span>
+              <span>{t('admin.notifications.actions.sendNotification', 'Send Notification')}</span>
             </button>
           </div>
 
           {/* Queries Section */}
           <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2"><MessageSquare size={20}/> {t('admin.notifications.queries.title')}</h2>
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2"><MessageSquare size={20}/> {t('admin.notifications.queries.title', 'Queries')}</h2>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.sender')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.role')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.message')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.date')}</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.status')}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.actions')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.sender', 'Sender')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.role', 'Role')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.message', 'Message')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.date', 'Date')}</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.status', 'Status')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.queries.table.actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -135,9 +135,9 @@ export default function Notifications() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-700 dark:text-blue-300">{q.date}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {q.status === 'open' ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{t('admin.notifications.queries.status.open')}</span>
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">{t('admin.notifications.queries.status.open', 'Open')}</span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t('admin.notifications.queries.status.closed')}</span>
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t('admin.notifications.queries.status.closed', 'Closed')}</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -146,7 +146,7 @@ export default function Notifications() {
                           className="text-blue-600 hover:text-blue-800 disabled:opacity-50 dark:text-blue-400 dark:hover:text-blue-300"
                           disabled={q.status === 'closed'}
                         >
-                          {t('admin.notifications.actions.reply')}
+                          {t('admin.notifications.actions.reply', 'Reply')}
                         </button>
                       </td>
                     </tr>
@@ -158,15 +158,15 @@ export default function Notifications() {
 
           {/* Notifications Sent Section */}
           <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2"><Send size={20}/> {t('admin.notifications.sent.title')}</h2>
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2"><Send size={20}/> {t('admin.notifications.sent.title', 'Notifications Sent')}</h2>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.recipient')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.email')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.message')}</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.date')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.recipient', 'Recipient')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.email', 'Email')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.message', 'Message')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.notifications.sent.table.date', 'Date')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -190,21 +190,21 @@ export default function Notifications() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.queries.replyModal.title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.queries.replyModal.title', 'Reply to Query')}</h2>
               <button onClick={() => setShowReplyModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"><X size={24} /></button>
             </div>
             <form onSubmit={handleReply} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.queries.replyModal.query')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.queries.replyModal.query', 'Query')}</label>
                 <div className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded text-gray-700 dark:text-gray-300">{activeQuery.message}</div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.queries.replyModal.yourReply')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.queries.replyModal.yourReply', 'Your Reply')}</label>
                 <textarea className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-700 dark:text-gray-300" rows={3} required value={replyText} onChange={e => setReplyText(e.target.value)} />
               </div>
               <div className="flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowReplyModal(false)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.notifications.actions.cancel')}</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">{t('admin.notifications.actions.sendReply')}</button>
+                <button type="button" onClick={() => setShowReplyModal(false)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.notifications.actions.cancel', 'Cancel')}</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">{t('admin.notifications.actions.sendReply', 'Send Reply')}</button>
               </div>
             </form>
           </div>
@@ -216,30 +216,30 @@ export default function Notifications() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.sendModal.title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.notifications.sendModal.title', 'Send Notification')}</h2>
               <button onClick={() => setShowNotifModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"><X size={24} /></button>
             </div>
             <form onSubmit={handleSendNotif} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.recipient')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.recipient', 'Recipient')}</label>
                 <select className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-700 dark:text-gray-300" required value={notifForm.recipient} onChange={e => setNotifForm(f => ({ ...f, recipient: e.target.value }))}>
-                  <option value="">{t('admin.notifications.sendModal.fields.selectRecipient')}</option>
-                  {recipientOptions.map(opt => <option key={opt.value} value={opt.value}>{t(opt.labelKey)}</option>)}
+                  <option value="">{t('admin.notifications.sendModal.fields.selectRecipient', 'Select Recipient')}</option>
+                  {recipientOptions.map(opt => <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.value)}</option>)}
                 </select>
               </div>
               {notifForm.recipient === 'custom' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.email')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.email', 'Email')}</label>
                   <input type="email" className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-700 dark:text-gray-300" required value={notifForm.email} onChange={e => setNotifForm(f => ({ ...f, email: e.target.value }))} />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.message')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.notifications.sendModal.fields.message', 'Message')}</label>
                 <textarea className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 text-gray-700 dark:text-gray-300" rows={3} required value={notifForm.message} onChange={e => setNotifForm(f => ({ ...f, message: e.target.value }))} />
               </div>
               <div className="flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowNotifModal(false)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.notifications.actions.cancel')}</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">{t('admin.notifications.actions.send')}</button>
+                <button type="button" onClick={() => setShowNotifModal(false)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.notifications.actions.cancel', 'Cancel')}</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">{t('admin.notifications.actions.send', 'Send')}</button>
               </div>
             </form>
           </div>

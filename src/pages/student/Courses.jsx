@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, Clock, Users, Calendar, ChevronRight, Search, FileText, Video, ShieldCheck, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const courses = [
   {
@@ -75,6 +76,63 @@ function Courses() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const navigate = useNavigate();
+  const { startTour } = useTour();
+
+  const startCoursesTour = () => {
+    const steps = [
+      { 
+        target: '#courses-search', 
+        title: t('student.tour.courses.title', 'Find Your Courses'), 
+        content: t('student.tour.courses.desc', 'Search for courses by name or instructor to quickly find what you need.'),
+        placement: 'left-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="courses-grid"]', 
+        title: t('student.tour.courses.gridTitle', 'Course Overview'), 
+        content: t('student.tour.courses.gridDesc', 'Each card shows your schedule, next class time, and current progress.'),
+        placement: 'top-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="view-details-btn"]', 
+        title: t('student.tour.courses.detailsTitle', 'Course Details'), 
+        content: t('student.tour.courses.detailsDesc', 'Click to access syllabus, materials, videos, and weekly content.'),
+        placement: 'left-start',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:courses:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users (but not too aggressively)
+    const key = 'tour:student:courses:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:courses:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      // Delay to let page load properly
+      setTimeout(() => {
+        startCoursesTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        // Longer delay to ensure page is fully rendered when coming from navigation
+        setTimeout(() => startCoursesTour(), 800);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
 
   const filteredCourses = courses.filter(course =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -95,12 +153,13 @@ function Courses() {
                 className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                id="courses-search"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="courses-grid">
             {filteredCourses.map((course) => (
               <div
                 key={course.id}
@@ -141,6 +200,7 @@ function Courses() {
                   <button
                     onClick={() => setSelectedCourse(course)}
                     className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    data-tour="view-details-btn"
                   >
                     {t('student.courses.viewDetails')}
                     <ChevronRight className="ml-2 h-4 w-4" />
@@ -204,6 +264,7 @@ function Courses() {
                         }
                       })}
                       className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow-sm hover:from-blue-600 hover:to-purple-600 font-medium text-sm mb-4 transition"
+                      id="course-modal-syllabus-btn"
                     >
                       <FileText className="mr-2 w-4 h-4" /> {t('student.courses.modal.viewSyllabus')}
                     </button>
@@ -211,7 +272,7 @@ function Courses() {
                     <h3 className="flex items-center gap-1 text-base font-bold text-pink-600 mb-2">
                       <Video className="w-5 h-5" /> {t('student.courses.modal.weeklyContent')}
                     </h3>
-                    <div className="relative">
+                    <div className="relative" data-tour="weekly-content">
                       <div className={`space-y-4 ${selectedCourse.title === 'Web Development' ? 'blur-sm' : ''}`}>
                         {courseContents[selectedCourse.title].weeks.map((week) => (
                           <div key={week.week} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">

@@ -252,21 +252,21 @@ export default function StudentsManagement() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.title')}</h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.title', 'Student Management')}</h1>
           <div className="flex space-x-4">
             <button 
               onClick={() => setShowUploadModal(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors dark:bg-green-700 dark:hover:bg-green-800"
             >
               <Upload size={20} />
-              <span>{t('admin.studentsManagement.buttons.upload')}</span>
+              <span>{t('admin.studentsManagement.buttons.upload', 'Upload Students')}</span>
             </button>
             <button 
               onClick={() => setShowAddModal(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-800"
             >
               <Plus size={20} />
-              <span>{t('admin.studentsManagement.buttons.addNew')}</span>
+              <span>{t('admin.studentsManagement.buttons.addNew', 'Add New Student')}</span>
             </button>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function StudentsManagement() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
                 <input
                   type="text"
-                  placeholder={t('admin.studentsManagement.searchPlaceholder')}
+                  placeholder={t('admin.studentsManagement.searchPlaceholder', 'Search students...')}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -292,18 +292,18 @@ export default function StudentsManagement() {
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
               >
-                <option value="all">{t('admin.studentsManagement.filters.all')}</option>
-                <option value="active">{t('admin.studentsManagement.filters.active')}</option>
-                <option value="inactive">{t('admin.studentsManagement.filters.inactive')}</option>
-                <option value="graduated">{t('admin.studentsManagement.filters.graduated')}</option>
+                <option value="all">{t('admin.studentsManagement.filters.all', 'All Students')}</option>
+                <option value="active">{t('admin.studentsManagement.filters.active', 'Active')}</option>
+                <option value="inactive">{t('admin.studentsManagement.filters.inactive', 'Inactive')}</option>
+                <option value="graduated">{t('admin.studentsManagement.filters.graduated', 'Graduated')}</option>
               </select>
               <button className="border rounded-lg px-4 py-2 flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-700">
                 <Filter size={20} />
-                <span>{t('admin.studentsManagement.buttons.moreFilters')}</span>
+                <span>{t('admin.studentsManagement.buttons.moreFilters', 'More Filters')}</span>
               </button>
               <button className="border rounded-lg px-4 py-2 flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-700" onClick={handleExport}>
                 <Download size={20} />
-                <span>{t('admin.studentsManagement.buttons.export')}</span>
+                <span>{t('admin.studentsManagement.buttons.export', 'Export')}</span>
               </button>
             </div>
           </div>
@@ -314,13 +314,13 @@ export default function StudentsManagement() {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.name')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.email')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.program')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.year')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.status')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.enrollmentDate')}</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.actions')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.name', 'Name')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.email', 'Email')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.program', 'Program')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.year', 'Year')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.status', 'Status')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.enrollmentDate', 'Enrollment Date')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.studentsManagement.table.actions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -345,7 +345,7 @@ export default function StudentsManagement() {
                       student.status === 'Inactive' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                       'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                     }`}>
-                      {t(`admin.studentsManagement.status.${student.status.toLowerCase()}`)}
+                      {t(`admin.studentsManagement.status.${student.status.toLowerCase()}`, student.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{student.enrollmentDate}</td>
@@ -365,21 +365,21 @@ export default function StudentsManagement() {
                               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200"
                             >
                               <Edit size={16} className="mr-2" />
-                              {t('admin.studentsManagement.actionMenu.edit')}
+                              {t('admin.studentsManagement.actionMenu.edit', 'Edit')}
                             </button>
                             <button
                               onClick={() => handleDelete(student)}
                               className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-red-400"
                             >
                               <Trash2 size={16} className="mr-2" />
-                              {t('admin.studentsManagement.actionMenu.delete')}
+                              {t('admin.studentsManagement.actionMenu.delete', 'Delete')}
                             </button>
                             <button
                               onClick={() => handleViewResults(student)}
                               className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-blue-400"
                             >
                               <BarChart2 size={16} className="mr-2" />
-                              {t('admin.studentsManagement.actionMenu.viewResults')}
+                              {t('admin.studentsManagement.actionMenu.viewResults', 'View Results')}
                             </button>
                           </div>
                         </div>
@@ -393,16 +393,13 @@ export default function StudentsManagement() {
         </div>
 
         {/* Pagination */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {t('admin.studentsManagement.pagination.summary', { from: 1, to: filteredStudents.length, total: filteredStudents.length })}
-          </div>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.studentsManagement.pagination.previous')}</button>
-            <button className="px-3 py-1 border rounded-lg bg-blue-600 text-white dark:bg-blue-700 dark:text-white">1</button>
-            <button className="px-3 py-1 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.studentsManagement.pagination.next')}</button>
-          </div>
-        </div>
+        <div className="flex items-center justify-between p-4 text-sm text-gray-600 dark:text-gray-300">
+					<div>{t('admin.studentsManagement.pagination.summary', { from: 1, to: filteredStudents.length, total: filteredStudents.length, defaultValue: `Showing 1 to ${filteredStudents.length} of ${filteredStudents.length} entries` })}</div>
+					<div className="space-x-2">
+						<button className="px-3 py-1 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.studentsManagement.pagination.previous', 'Previous')}</button>
+						<button className="px-3 py-1 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">{t('admin.studentsManagement.pagination.next', 'Next')}</button>
+					</div>
+				</div>
       </div>
 
       {/* Add Student Modal */}
@@ -410,7 +407,7 @@ export default function StudentsManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.addModal.title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.addModal.title', 'Add New Student')}</h2>
               <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                 <X size={24} />
               </button>
@@ -418,7 +415,7 @@ export default function StudentsManagement() {
             <form onSubmit={handleAddStudent} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.fullName')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.fullName', 'Full Name')}</label>
                   <input
                     type="text"
                     name="name"
@@ -429,7 +426,7 @@ export default function StudentsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.email')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.email', 'Email')}</label>
                   <input
                     type="email"
                     name="email"
@@ -440,7 +437,7 @@ export default function StudentsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.program')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.program', 'Program')}</label>
                   <select
                     name="program"
                     value={newStudent.program}
@@ -448,14 +445,14 @@ export default function StudentsManagement() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                     required
                   >
-                    <option value="">{t('admin.studentsManagement.addModal.fields.selectProgram')}</option>
+                    <option value="">{t('admin.studentsManagement.addModal.fields.selectProgram', 'Select Program')}</option>
                     {programs.map(program => (
                       <option key={program} value={program}>{program}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.year')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.year', 'Year')}</label>
                   <select
                     name="year"
                     value={newStudent.year}
@@ -463,14 +460,14 @@ export default function StudentsManagement() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                     required
                   >
-                    <option value="">{t('admin.studentsManagement.addModal.fields.selectYear')}</option>
+                    <option value="">{t('admin.studentsManagement.addModal.fields.selectYear', 'Select Year')}</option>
                     {years.map(year => (
                       <option key={year} value={year}>{year}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.phone')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.phone', 'Phone')}</label>
                   <input
                     type="tel"
                     name="phone"
@@ -481,7 +478,7 @@ export default function StudentsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.dateOfBirth')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.dateOfBirth', 'Date of Birth')}</label>
                   <input
                     type="date"
                     name="dateOfBirth"
@@ -492,7 +489,7 @@ export default function StudentsManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.gender')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.gender', 'Gender')}</label>
                   <select
                     name="gender"
                     value={newStudent.gender}
@@ -500,14 +497,14 @@ export default function StudentsManagement() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                     required
                   >
-                    <option value="">{t('admin.studentsManagement.addModal.fields.selectGender')}</option>
-                    <option value="Male">{t('admin.studentsManagement.addModal.fields.male')}</option>
-                    <option value="Female">{t('admin.studentsManagement.addModal.fields.female')}</option>
-                    <option value="Other">{t('admin.studentsManagement.addModal.fields.other')}</option>
+                    <option value="">{t('admin.studentsManagement.addModal.fields.selectGender', 'Select Gender')}</option>
+                    <option value="Male">{t('admin.studentsManagement.addModal.fields.male', 'Male')}</option>
+                    <option value="Female">{t('admin.studentsManagement.addModal.fields.female', 'Female')}</option>
+                    <option value="Other">{t('admin.studentsManagement.addModal.fields.other', 'Other')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.nationality')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.nationality', 'Nationality')}</label>
                   <input
                     type="text"
                     name="nationality"
@@ -518,7 +515,7 @@ export default function StudentsManagement() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.address')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.studentsManagement.addModal.fields.address', 'Address')}</label>
                   <textarea
                     name="address"
                     value={newStudent.address}
@@ -533,15 +530,15 @@ export default function StudentsManagement() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  {t('admin.studentsManagement.buttons.cancel')}
+                  {t('admin.studentsManagement.buttons.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  {t('admin.studentsManagement.buttons.add')}
+                  {t('admin.studentsManagement.buttons.add', 'Add Student')}
                 </button>
               </div>
             </form>
@@ -550,66 +547,36 @@ export default function StudentsManagement() {
       )}
 
       {/* Upload Students Modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.uploadModal.title')}</h2>
-              <button onClick={() => setShowUploadModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                <X size={24} />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center dark:border-gray-700">
-                <input
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="cursor-pointer inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <Upload size={24} />
-                  <span>{t('admin.studentsManagement.uploadModal.chooseOrDrag')}</span>
-                </label>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {t('admin.studentsManagement.uploadModal.supportedFormats')}
-                </p>
-              </div>
-              {uploadError && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md dark:bg-red-900 dark:text-red-200">
-                  {uploadError}
-                </div>
-              )}
-              {uploadSuccess && (
-                <div className="bg-green-50 text-green-600 p-3 rounded-md dark:bg-green-900 dark:text-green-200">
-                  {uploadSuccess}
-                </div>
-              )}
-              <div className="flex justify-between items-center">
-                <button
-                  onClick={downloadTemplate}
-                  className="text-blue-600 hover:text-blue-700 flex items-center space-x-2 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <Download size={20} />
-                  <span>{t('admin.studentsManagement.uploadModal.downloadTemplate')}</span>
-                </button>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => setShowUploadModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-                  >
-                    {t('admin.studentsManagement.buttons.cancel')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+			{showUploadModal && (
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+					<div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
+						<div className="flex justify-between items-center mb-4">
+							<h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{t('admin.studentsManagement.uploadModal.title', 'Upload Students')}</h2>
+							<button onClick={() => setShowUploadModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+								<X size={24} />
+							</button>
+						</div>
+						<div className="border-2 border-dashed rounded-lg p-6 text-center">
+							<div className="flex justify-center mb-2">
+								<Upload size={28} className="text-blue-600" />
+							</div>
+							<span>{t('admin.studentsManagement.uploadModal.chooseOrDrag', 'Choose a file or drag it here')}</span>
+							<div className="mt-2 text-xs text-gray-500">{t('admin.studentsManagement.uploadModal.supportedFormats', 'Supported formats: .xlsx, .xls, .csv')}</div>
+							<input type="file" accept=".xlsx,.xls,.csv" className="hidden" id="uploadInput" onChange={handleFileUpload} />
+							<label htmlFor="uploadInput" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700">{t('admin.studentsManagement.buttons.upload', 'Upload Students')}</label>
+						</div>
+						<div className="mt-4 flex items-center justify-between">
+							<button className="text-blue-600 hover:underline">
+								<Download size={16} className="inline mr-1" />
+								<span>{t('admin.studentsManagement.uploadModal.downloadTemplate', 'Download Template')}</span>
+							</button>
+							<button onClick={() => setShowUploadModal(false)} className="px-4 py-2 border rounded">
+								{t('admin.studentsManagement.buttons.cancel', 'Cancel')}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
       {/* Results Modal */}
       {showResultsModal && selectedStudent && (

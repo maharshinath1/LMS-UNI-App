@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { 
   Award, 
@@ -12,6 +12,7 @@ import {
   Info
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const courses = [
   {
@@ -60,9 +61,78 @@ const courses = [
 
 function Grades() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [semesterFilter, setSemesterFilter] = useState('all');
+
+  const startGradesTour = () => {
+    const steps = [
+      { 
+        target: '#grades-search', 
+        title: t('student.tour.grades.searchTitle', 'Search Courses'), 
+        content: t('student.tour.grades.searchDesc', 'Find courses by name or course code.'),
+        placement: 'bottom-start',
+        disableBeacon: true
+      },
+      { 
+        target: '#grades-semester-filter', 
+        title: t('student.tour.grades.filterTitle', 'Semester Filter'), 
+        content: t('student.tour.grades.filterDesc', 'Switch between different semesters to view grades.'),
+        placement: 'bottom-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="grades-overview"]', 
+        title: t('student.tour.grades.overviewTitle', 'Grade Overview'), 
+        content: t('student.tour.grades.overviewDesc', 'See your GPA and course completion status.'),
+        placement: 'bottom-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="grades-course-list"]', 
+        title: t('student.tour.grades.courseTitle', 'Course Grades'), 
+        content: t('student.tour.grades.courseDesc', 'View individual course grades and performance trends.'),
+        placement: 'top-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="view-course-details"]', 
+        title: t('student.tour.grades.detailsTitle', 'Grade Details'), 
+        content: t('student.tour.grades.detailsDesc', 'Click to see detailed assignment breakdowns.'),
+        placement: 'left-start',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:grades:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:grades:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:grades:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startGradesTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startGradesTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,12 +175,14 @@ function Grades() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                  id="grades-search"
                 />
               </div>
               <select
                 value={semesterFilter}
                 onChange={(e) => setSemesterFilter(e.target.value)}
                 className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                id="grades-semester-filter"
               >
                 <option value="all">{t('student.grades.semesters.all')}</option>
                 <option value="Spring 2024">{t('student.grades.semesters.spring2024')}</option>
@@ -124,7 +196,7 @@ function Grades() {
           </div>
 
           {/* Grades Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" data-tour="grades-overview">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -155,7 +227,7 @@ function Grades() {
           </div>
 
           {/* Course Grades */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6" data-tour="grades-course-list">
             {filteredCourses.map(course => (
               <div
                 key={course.id}
@@ -192,6 +264,7 @@ function Grades() {
                   <button
                     onClick={() => setSelectedCourse(course)}
                     className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    data-tour="view-course-details"
                   >
                     {t('student.grades.viewDetails')}
                     <ChevronRight className="ml-2 h-4 w-4" />

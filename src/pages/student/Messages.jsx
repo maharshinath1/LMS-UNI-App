@@ -16,6 +16,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const conversations = [
   {
@@ -98,6 +99,7 @@ function Messages() {
   const [showAttachments, setShowAttachments] = useState(false);
   const [chatMessages, setChatMessages] = useState(initialMessages);
   const [isReplying, setIsReplying] = useState(false);
+  const { startTour } = useTour();
 
   const filteredConversations = conversations.filter(conversation =>
     conversation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -175,6 +177,60 @@ function Messages() {
     };
   }
 
+  const startMessagesTour = () => {
+    const steps = [
+      { 
+        target: '#messages-search', 
+        title: t('student.tour.messages.title', 'Find Conversations'), 
+        content: t('student.tour.messages.desc', 'Search for conversations by person name or course.'),
+        placement: 'bottom-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="conversations-list"]', 
+        title: t('student.tour.messages.listTitle', 'Message Threads'), 
+        content: t('student.tour.messages.listDesc', 'View all your conversations with unread message indicators.'),
+        placement: 'right-start',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="open-conversation"]', 
+        title: t('student.tour.messages.openTitle', 'Open Chat'), 
+        content: t('student.tour.messages.openDesc', 'Click on any conversation to start chatting.'),
+        placement: 'right-start',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:messages:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:messages:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:messages:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startMessagesTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startMessagesTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="student" />
@@ -190,11 +246,12 @@ function Messages() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                id="messages-search"
               />
             </div>
           </div>
 
-          <div className="overflow-y-auto h-[calc(100vh-4rem)]">
+          <div className="overflow-y-auto h-[calc(100vh-4rem)]" data-tour="conversations-list">
             {filteredConversations.map(conversation => (
               <button
                 key={conversation.id}
@@ -202,6 +259,7 @@ function Messages() {
                 className={`w-full p-4 border-b hover:bg-gray-50 transition-colors ${
                   selectedConversation?.id === conversation.id ? 'bg-blue-50' : ''
                 }`}
+                data-tour="open-conversation"
               >
                 <div className="flex items-start gap-3">
                   <div className="relative">
@@ -311,6 +369,7 @@ function Messages() {
                     <button
                       onClick={() => setShowAttachments(!showAttachments)}
                       className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      id="toggle-attachments"
                     >
                       <Paperclip size={20} />
                     </button>
@@ -320,6 +379,7 @@ function Messages() {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       className="w-full pl-10 pr-24 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      id="message-input"
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
                       <button className="text-gray-400 hover:text-gray-600">
@@ -328,6 +388,7 @@ function Messages() {
                       <button
                         onClick={handleSendMessage}
                         className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                        id="send-message"
                       >
                         <Send size={16} />
                         {t('student.messages.send')}

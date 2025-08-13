@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, Users2, ClipboardList, Calendar, BarChart2, MessageCircle, FileText, CheckCircle, TrendingUp, Bell, Award, Library, Clock, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const stats = [
   { labelKey: 'student.dashboard.stats.enrolledCourses', value: '5', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -126,12 +127,154 @@ function AnimatedNumber({ value }) {
 
 export default function StudentDashboard() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
+  const [showTourChooser, setShowTourChooser] = useState(false);
+  useEffect(() => {
+    const key = 'tour:student:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:v1:state');
+    
+    // Only auto-start for truly new users who haven't seen or completed the tour
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      // Longer delay for better UX - let page fully load
+      setTimeout(() => {
+        startStudentTour(true);
+        localStorage.setItem(key, 'shown');
+      }, 800);
+    }
+    
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        // Small delay to ensure page is ready
+        setTimeout(() => startStudentTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  // Check for pending tour launch when navigating to dashboard
+  useEffect(() => {
+    const launch = localStorage.getItem('tour:launch');
+    if (launch === 'student-full' || launch === 'student-resume') {
+      localStorage.removeItem('tour:launch');
+      // Delay to ensure page is fully rendered after navigation
+      setTimeout(() => startStudentTour(), 400);
+    }
+  }, []);
+  const startStudentTour = (auto = false) => {
+    const steps = [
+      {
+        target: '#sidebar-nav [data-tour="sidebar-link-dashboard"]',
+        title: t('student.tour.sidebar.title', 'Navigation'),
+        content: t('student.tour.sidebar.desc', 'Use this sidebar to navigate between different sections of your LMS.'),
+        placement: 'right',
+        disableBeacon: true,
+      },
+      {
+        target: '#stat-cards',
+        title: t('student.tour.dashboard.cards.title', 'Your Status'),
+        content: t('student.tour.dashboard.cards.desc', 'Quick overview of your academic progress and important metrics.'),
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '[data-tour="academic-performance"]',
+        title: t('student.tour.performance.title', 'Academic Performance'),
+        content: t('student.tour.performance.desc', 'Track your overall academic progress and performance trends.'),
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '[data-tour="study-stats"]',
+        title: t('student.tour.studyStats.title', 'Study Progress'),
+        content: t('student.tour.studyStats.desc', 'Monitor your attendance, study hours, and completed tasks.'),
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '#upcoming-assignments',
+        title: t('student.tour.assignments.title', 'Upcoming Assignments'),
+        content: t('student.tour.assignments.desc', 'Stay on top of your deadlines and upcoming assignments.'),
+        placement: 'right',
+        disableBeacon: true,
+      },
+      {
+        target: '#quick-links',
+        title: t('student.tour.courses.title', 'Quick Links'),
+        content: t('student.tour.courses.desc', 'Access frequently used features and sections quickly.'),
+        placement: 'left',
+        disableBeacon: true,
+      },
+      {
+        target: '[data-tour="deadlines"]',
+        title: t('student.tour.deadlines.title', 'Important Deadlines'),
+        content: t('student.tour.deadlines.desc', 'Never miss important dates and deadlines.'),
+        placement: 'left',
+        disableBeacon: true,
+      },
+      {
+        target: '[data-tour="messages"]',
+        title: t('student.tour.messages.title', 'Messages'),
+        content: t('student.tour.messages.desc', 'Stay connected with your instructors and classmates.'),
+        placement: 'left',
+        disableBeacon: true,
+      },
+    ].filter(s => document.querySelector(s.target));
+    
+    startTour('student:v1', steps);
+  };
+
+  const startFullTour = () => {
+    // Queue: dashboard (here), then all major student pages
+    localStorage.setItem('tour:queue', JSON.stringify([
+      '/student/courses',
+      '/student/assignments', 
+      '/student/grades',
+      '/student/materials',
+      '/student/schedule',
+      '/student/messages',
+      '/student/notifications',
+      '/student/ecollab'
+    ]));
+    startStudentTour();
+    setShowTourChooser(false);
+  };
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="student" />
       <div className="flex-1 overflow-auto p-6">
+        {/* Tour chooser accessible via sidebar Start Tour button; keeping the modal for demo */}
+        {false && (
+          <div className="flex justify-end mb-2">
+            <button onClick={() => setShowTourChooser(true)} className="px-3 py-1.5 text-xs rounded-md bg-purple-600 text-white hover:bg-purple-700">
+              {t('student.tour.cta.try', 'Start Tour')}
+            </button>
+          </div>
+        )}
+        {false && showTourChooser && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-5">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">{t('student.tour.startPrompt.title', 'Choose your tour')}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{t('student.tour.startPrompt.desc', 'Take the full guided tour or jump to a section.')}</p>
+              <div className="space-y-2">
+                <button onClick={startFullTour} className="w-full px-3 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 text-sm">{t('student.tour.startPrompt.full', 'Full tour (recommended)')}</button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => { setShowTourChooser(false); startStudentTour(); }} className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm">{t('navigation.dashboard', 'Dashboard')}</button>
+                  <button onClick={() => { localStorage.setItem('tour:queue', JSON.stringify([])); window.location.assign('/student/courses'); }} className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm">{t('student.courses.title', 'My Courses')}</button>
+                  <button onClick={() => { localStorage.setItem('tour:queue', JSON.stringify([])); window.location.assign('/student/assignments'); }} className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm">{t('student.assignments.title', 'Assignments')}</button>
+                  <button onClick={() => { localStorage.setItem('tour:queue', JSON.stringify([])); window.location.assign('/student/schedule'); }} className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 text-sm">{t('student.schedule.title', 'Schedule')}</button>
+                </div>
+                <button onClick={() => setShowTourChooser(false)} className="w-full px-3 py-2 rounded border dark:border-gray-600 text-sm">{t('common.cancel', 'Cancel')}</button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Top Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div id="stat-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6" data-tour="stat-cards">
           {stats.map((stat) => (
             <div key={stat.labelKey} className={`rounded-xl shadow p-6 flex items-center gap-4 ${stat.bg} dark:bg-gray-800`}>
               <stat.icon size={36} className={stat.color} />
@@ -147,7 +290,7 @@ export default function StudentDashboard() {
         <div className="grid grid-cols-12 gap-6">
           {/* Left Column - Academic Performance */}
           <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6" data-tour="academic-performance">
               <div className="flex justify-between items-center mb-4">
                 <div className="font-semibold text-gray-700 dark:text-gray-100">{t('student.dashboard.academicPerformance.title')}</div>
                 <select className="border rounded px-2 py-1 text-sm dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
@@ -169,7 +312,7 @@ export default function StudentDashboard() {
             </div>
 
             {/* Study Progress Overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="study-stats">
               {studyProgress.map((item, index) => (
                 <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -185,7 +328,7 @@ export default function StudentDashboard() {
             </div>
 
             {/* Upcoming Assignments */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6">
+            <div id="upcoming-assignments" className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6" data-tour="upcoming-assignments">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-blue-600" />
@@ -198,184 +341,74 @@ export default function StudentDashboard() {
                   </svg>
                 </a>
               </div>
-              <div className="space-y-1">
-                {upcomingAssignments.map((assignment, index) => (
-                  <div key={index} className="flex items-center justify-between py-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                        assignment.course.includes('Mathematics') ? 'bg-blue-50 dark:bg-blue-900' :
-                        assignment.course.includes('Physics') ? 'bg-purple-50 dark:bg-purple-900' :
-                        'bg-green-50 dark:bg-green-900'
-                      }`}>
-                        <span className={`text-sm font-medium ${
-                          assignment.course.includes('Mathematics') ? 'text-blue-600 dark:text-blue-300' :
-                          assignment.course.includes('Physics') ? 'text-purple-600 dark:text-purple-300' :
-                          'text-green-600 dark:text-green-300'
-                        }`}>
-                          {assignment.course.split(' ')[0][0]}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{assignment.title}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-300">{assignment.course}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">{t('student.dashboard.upcomingAssignments.dueOn', { date: `Mar ${assignment.dueDate.split('-')[2]}` })}</div>
-                        <div className="text-xs text-red-500">{t('student.dashboard.upcomingAssignments.daysLeft_other', { count: assignment.daysLeft })}</div>
-                      </div>
-                      <div className={`px-2 py-0.5 rounded-full text-xs ${
-                        assignment.status === 'pending' ? 'bg-yellow-50 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300' :
-                        assignment.status === 'in-progress' ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300' :
-                        'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-                      }`}>
-                        {t(`student.dashboard.upcomingAssignments.status.${assignment.status}`)}
-                      </div>
-                      <svg className="w-3 h-3 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Schedule */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-              <div className="font-semibold text-gray-700 dark:text-gray-100 mb-4">{t('student.dashboard.schedule.today')}</div>
               <div className="space-y-4">
-                {upcomingClasses.map((class_, index) => (
-                  <div key={index} className="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <div className="flex-shrink-0 w-16 text-center">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{class_.time}</div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{class_.title}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-300">{class_.room}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-300">{t('student.dashboard.schedule.instructor', { name: class_.instructor })}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Important Deadlines */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6">
-              <h2 className="font-semibold text-gray-700 dark:text-gray-100 mb-4">{t('student.dashboard.deadlines.title')}</h2>
-              <div className="space-y-4">
-                {upcomingDeadlines.map((deadline, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div className={`w-2 h-2 mt-2 rounded-full ${
-                      deadline.priority === 'high' ? 'bg-red-500' : 'bg-yellow-500'
-                    }`} />
+                {upcomingAssignments.map((a, idx) => (
+                  <div key={idx} className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{deadline.title}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-300">{deadline.course}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{t('student.dashboard.deadlines.due', { date: new Date(deadline.deadline).toLocaleDateString() })}</div>
+                      <div className="font-medium text-gray-700 dark:text-gray-200">{a.title}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-300">{a.course} • {a.dueDate}</div>
                     </div>
-                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-200 text-gray-700 ml-auto dark:bg-gray-700 dark:text-gray-200">
-                      {deadline.type}
-                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{a.daysLeft}d</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Widgets */}
+          <div className="col-span-12 lg:col-span-4">
+            {/* Quick Actions */}
+            <div id="quick-links" className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6" data-tour="quick-links">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText size={18} className="text-blue-600" />
+                <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.widgets.quickLinks', 'Quick Links')}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {quickActions.map((action, idx) => (
+                  <button key={idx} className="flex items-center gap-2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <action.icon size={16} />
+                    <span className="text-sm">{t(action.labelKey)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Messages */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6" data-tour="messages">
+              <div className="flex items-center gap-2 mb-4">
+                <MessageCircle size={18} className="text-blue-600" />
+                <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.widgets.messages')}</span>
+              </div>
+              <div className="space-y-3">
+                {messages.map((m, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full ${m.color}`}></div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-700 dark:text-gray-200">{m.name}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-300">{m.msg} • {m.time}</div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Study Resources */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-              <h2 className="font-semibold text-gray-700 dark:text-gray-100 mb-4">{t('student.dashboard.resources.title')}</h2>
-              <div className="space-y-3">
-                <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center dark:bg-purple-900">
-                    <Library size={20} className="text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('student.dashboard.resources.digitalLibrary.title')}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-300">{t('student.dashboard.resources.digitalLibrary.subtitle')}</div>
-                  </div>
-                </a>
-                <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center dark:bg-green-900">
-                    <Users2 size={20} className="text-green-600 dark:text-green-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('student.dashboard.resources.studyGroups.title')}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-300">{t('student.dashboard.resources.studyGroups.subtitle')}</div>
-                  </div>
-                </a>
-                <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center dark:bg-blue-900">
-                    <MessageCircle size={20} className="text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('student.dashboard.resources.academicSupport.title')}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-300">{t('student.dashboard.resources.academicSupport.subtitle')}</div>
-                  </div>
-                </a>
+            {/* Upcoming Deadlines */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4" data-tour="deadlines">
+              <div className="flex items-center gap-2 mb-4">
+                <Bell size={18} className="text-blue-600" />
+                <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.deadlines.title')}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Widgets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {/* Messages */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col">
-            <div className="font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <MessageCircle size={18}/> {t('student.dashboard.widgets.messages')}
-            </div>
-            <div className="flex-1 flex flex-col gap-3">
-              {messages.map((msg, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${msg.color} dark:bg-blue-600`}>
-                    <Users2 size={28} className="text-white" />
+              <div className="space-y-3">
+                {upcomingDeadlines.map((d, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-gray-700 dark:text-gray-200">{d.title}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-300">{d.type} • {d.course} • {d.deadline}</div>
+                    </div>
+                    <AlertCircle size={16} className="text-yellow-500" />
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{msg.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-300">{msg.msg}</div>
-                  </div>
-                  <div className="text-xs text-gray-400 dark:text-gray-300 whitespace-nowrap">{msg.time}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Activities */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col">
-            <div className="font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <Bell size={18}/> {t('student.dashboard.widgets.recentActivities')}
-            </div>
-            <div className="flex-1 flex flex-col gap-3">
-              {activities.map((activity, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <activity.icon size={22} className={activity.color} />
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{activity.desc}</div>
-                  </div>
-                  <div className="text-xs text-gray-400 dark:text-gray-300 whitespace-nowrap">{activity.time}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col">
-            <div className="font-semibold text-gray-700 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <Library size={18}/> {t('student.dashboard.widgets.quickLinks')}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {quickActions.map((action, index) => (
-                <button
-                  key={index}
-                  className={`p-3 rounded-lg bg-${action.color}-50 text-${action.color}-600 hover:bg-${action.color}-100 transition-colors dark:bg-${action.color}-900 dark:text-${action.color}-400 dark:hover:bg-${action.color}-800`}
-                >
-                  <action.icon size={20} className="mx-auto mb-1" />
-                  <span className="text-sm">{t(action.labelKey)}</span>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -18,7 +18,10 @@ import {
   XCircle,
   Clock,
   FileText,
-  BarChart2
+  BarChart2,
+  Sparkles,
+  Copy,
+  Check
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +31,7 @@ const courses = [
   { id: 3, code: 'DS220', name: 'Data Structures' },
 ];
 
-const assignments = [
+const initialAssignments = [
   {
     id: 1,
     title: 'Programming Assignment #1',
@@ -66,18 +69,114 @@ const assignments = [
 
 export default function Assignments() {
   const { t } = useTranslation();
+  const [assignmentsData, setAssignmentsData] = useState(initialAssignments);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  // Create modal controlled fields
+  const [createCourse, setCreateCourse] = useState(courses[0]?.code || '');
+  const [createTitle, setCreateTitle] = useState('');
+  const [createDescription, setCreateDescription] = useState('');
+  const [createDueDate, setCreateDueDate] = useState('');
+  const [createPoints, setCreatePoints] = useState(100);
+  const [createType, setCreateType] = useState('Programming');
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiDraft, setAiDraft] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiType, setAiType] = useState('Programming');
+  const [aiDifficulty, setAiDifficulty] = useState('Medium');
+  const [aiPoints, setAiPoints] = useState(100);
+  const [aiCourse, setAiCourse] = useState('');
 
-  const filteredAssignments = assignments.filter(assignment => {
+  const filteredAssignments = assignmentsData.filter(assignment => {
     const matchesCourse = selectedCourse ? assignment.course === selectedCourse : true;
     const matchesSearch = assignment.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' ? true : assignment.status === filterStatus;
     return matchesCourse && matchesSearch && matchesStatus;
   });
+
+  const generateAssignmentDraft = () => {
+    const courseCode = aiCourse || (selectedCourse || 'CS101');
+    const title = `${courseCode} • ${aiType} Assignment (${aiDifficulty})`;
+    const outline = `Title: ${title}
+Topic: ${aiTopic || 'General Topic'}
+Points: ${aiPoints}
+
+Objective:
+- Demonstrate understanding of key concepts in the module
+- Apply theory to a practical problem
+
+Tasks:
+1) Research/Design: Provide a brief plan before implementation
+2) Implementation: Build the core solution with clean, commented code
+3) Validation: Include tests or sample runs proving correctness
+
+Requirements:
+- Difficulty: ${aiDifficulty}
+- Allowed tools/resources must be cited
+- Submit source files and a short README (setup, how to run)
+
+Assessment Rubric (100%):
+- Correctness: 40%
+- Code quality/structure: 25%
+- Documentation and clarity: 20%
+- Creativity/optimizations: 15%
+
+Academic Integrity:
+- Work must be your own; cite any external resources used.
+
+Submission Instructions:
+- Submit via LMS as a single archive (zip) with your name and ID.
+- Late policy: standard course policy applies.`;
+    return outline;
+  };
+
+  const handleRunAI = (e) => {
+    e?.preventDefault?.();
+    setAiGenerating(true);
+    setAiDraft('');
+    setTimeout(() => {
+      setAiDraft(generateAssignmentDraft());
+      setAiGenerating(false);
+    }, 800);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(aiDraft);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+
+  const handleCreateSubmit = (e) => {
+    e.preventDefault();
+    const newAssignment = {
+      id: Date.now(),
+      title: createTitle || `${createType} Assignment`,
+      course: createCourse || (courses[0]?.code || ''),
+      dueDate: createDueDate || new Date().toISOString().split('T')[0],
+      submissions: 0,
+      totalStudents: 0,
+      status: 'active',
+      type: createType,
+      points: createPoints || 0,
+    };
+    setAssignmentsData([newAssignment, ...assignmentsData]);
+    // Optionally focus filter to the created course so it's visible
+    setSelectedCourse('');
+    setShowCreateModal(false);
+    setCreateTitle('');
+    setCreateDescription('');
+    setCreateDueDate('');
+    setCreatePoints(100);
+    setCreateType('Programming');
+    setCreateCourse(courses[0]?.code || '');
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -216,11 +315,18 @@ export default function Assignments() {
 
       {/* Create Assignment Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 pt-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-3xl md:max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.assignments.modal.title')}</h2>
+                <button
+                  onClick={() => setShowAIGenerator(true)}
+                  className="mr-auto ml-4 inline-flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                  title={t('instructor.assignments.ai.assist', 'AI Assist')}
+                >
+                  <Sparkles size={16} /> {t('instructor.assignments.ai.assist', 'AI Assist')}
+                </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
@@ -228,10 +334,10 @@ export default function Assignments() {
                   <XCircle size={24} />
                 </button>
               </div>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleCreateSubmit}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.course')}</label>
-                  <select className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
+                  <select value={createCourse} onChange={(e) => setCreateCourse(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
                     {courses.map(course => (
                       <option key={course.id} value={course.code}>{course.code} - {course.name}</option>
                     ))}
@@ -241,6 +347,8 @@ export default function Assignments() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.title')}</label>
                   <input
                     type="text"
+                    value={createTitle}
+                    onChange={(e) => setCreateTitle(e.target.value)}
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                     placeholder={t('instructor.assignments.modal.fields.titlePlaceholder')}
                   />
@@ -250,6 +358,8 @@ export default function Assignments() {
                   <textarea
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                     rows="4"
+                    value={createDescription}
+                    onChange={(e) => setCreateDescription(e.target.value)}
                     placeholder={t('instructor.assignments.modal.fields.descriptionPlaceholder')}
                   />
                 </div>
@@ -258,6 +368,8 @@ export default function Assignments() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.dueDate')}</label>
                     <input
                       type="date"
+                      value={createDueDate}
+                      onChange={(e) => setCreateDueDate(e.target.value)}
                       className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                     />
                   </div>
@@ -265,6 +377,8 @@ export default function Assignments() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.points')}</label>
                     <input
                       type="number"
+                      value={createPoints}
+                      onChange={(e) => setCreatePoints(Number(e.target.value) || 0)}
                       className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
                       placeholder={t('instructor.assignments.modal.fields.pointsPlaceholder')}
                     />
@@ -272,7 +386,7 @@ export default function Assignments() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.modal.fields.type')}</label>
-                  <select className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
+                  <select value={createType} onChange={(e) => setCreateType(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100">
                     <option value="Programming">Programming</option>
                     <option value="Project">Project</option>
                     <option value="Quiz">Quiz</option>
@@ -303,6 +417,88 @@ export default function Assignments() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Assignment Generator Modal */}
+      {showAIGenerator && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-3xl">
+            <div className="flex flex-col max-h-[85vh]">
+              <div className="p-4 md:p-6 sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                    <Sparkles size={22} className="text-purple-600" />
+                    {t('instructor.assignments.ai.title', 'AI Assignment Generator')}
+                  </h2>
+                  <button onClick={() => setShowAIGenerator(false)} className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100">
+                    <XCircle size={24} />
+                  </button>
+                </div>
+              </div>
+              <div className="p-4 md:p-6 overflow-y-auto">
+                <form onSubmit={handleRunAI} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.ai.fields.course', 'Course')}</label>
+                    <select value={aiCourse} onChange={(e) => setAiCourse(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-900 dark:text-gray-100">
+                      <option value="">{t('instructor.assignments.ai.anyCourse', 'Any')}</option>
+                      {courses.map(c => (
+                        <option key={c.id} value={c.code}>{c.code} - {c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.ai.fields.type', 'Type')}</label>
+                    <select value={aiType} onChange={(e) => setAiType(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-900 dark:text-gray-100">
+                      <option>Programming</option>
+                      <option>Project</option>
+                      <option>Quiz</option>
+                      <option>Essay</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.ai.fields.topic', 'Topic')}</label>
+                    <input value={aiTopic} onChange={(e) => setAiTopic(e.target.value)} placeholder={t('instructor.assignments.ai.placeholders.topic', 'e.g., Sorting algorithms, regression, cybersecurity basics')} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-900 dark:text-gray-100" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.ai.fields.difficulty', 'Difficulty')}</label>
+                    <select value={aiDifficulty} onChange={(e) => setAiDifficulty(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-900 dark:text-gray-100">
+                      <option>Easy</option>
+                      <option>Medium</option>
+                      <option>Hard</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('instructor.assignments.ai.fields.points', 'Points')}</label>
+                    <input type="number" value={aiPoints} onChange={(e) => setAiPoints(Number(e.target.value) || 0)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-900 dark:text-gray-100" />
+                  </div>
+                  <div className="flex items-end">
+                    <button type="submit" className="w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                      <Sparkles size={18} /> {aiGenerating ? t('instructor.assignments.ai.generating', 'Generating...') : t('instructor.assignments.ai.generate', 'Generate')}
+                    </button>
+                  </div>
+                </form>
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 p-3 min-h-[180px]">
+                  {aiGenerating ? (
+                    <div className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.ai.generating', 'Generating...')}</div>
+                  ) : aiDraft ? (
+                    <pre className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{aiDraft}</pre>
+                  ) : (
+                    <div className="text-gray-500 dark:text-gray-300">{t('instructor.assignments.ai.empty', 'Fill in details and click Generate to create a draft assignment.')}</div>
+                  )}
+                </div>
+              </div>
+              <div className="p-4 sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                <button onClick={() => setShowAIGenerator(false)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100">{t('instructor.assignments.modal.actions.cancel')}</button>
+                <button onClick={handleCopy} disabled={!aiDraft} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {copied ? <Check size={18} /> : <Copy size={18} />} {copied ? t('instructor.assignments.ai.copied', 'Copied!') : t('instructor.assignments.ai.copy', 'Copy Draft')}
+                </button>
+                <button onClick={() => { if (!aiDraft) return; setCreateCourse(aiCourse || createCourse); setCreateType(aiType); setCreatePoints(aiPoints); setCreateTitle(`${aiType} – ${aiTopic || 'Assignment'}`); setCreateDescription(aiDraft); setShowAIGenerator(false); }} disabled={!aiDraft} className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50">
+                  <Sparkles size={18} /> {t('instructor.assignments.ai.apply', 'Apply to form')}
+                </button>
+              </div>
             </div>
           </div>
         </div>

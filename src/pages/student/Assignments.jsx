@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { 
   ClipboardList, 
@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const assignments = [
   {
@@ -50,11 +51,66 @@ const assignments = [
   },
 ];
 
-function Assignments() {
+export default function StudentAssignments() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+  const startAssignmentsTour = () => {
+    const steps = [
+      { 
+        target: '#assignments-search', 
+        title: t('student.tour.assignments.searchTitle', 'Find Assignments'), 
+        content: t('student.tour.assignments.searchDesc', 'Search for assignments by title or course name.'),
+        placement: 'left',
+        disableBeacon: true
+      },
+      { 
+        target: '#assignments-status-filter', 
+        title: t('student.tour.assignments.filterTitle', 'Filter by Status'), 
+        content: t('student.tour.assignments.filterDesc', 'View all assignments or filter by pending, submitted, or overdue.'),
+        placement: 'left',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="assignments-grid"]', 
+        title: t('student.tour.assignments.gridTitle', 'Assignment Overview'), 
+        content: t('student.tour.assignments.gridDesc', 'Each card shows due date, assignment type, and total points.'),
+        placement: 'top',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:assignments:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:assignments:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:assignments:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startAssignmentsTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startAssignmentsTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
 
   const filteredAssignments = assignments.filter(assignment => {
     const matchesSearch = assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,12 +153,14 @@ function Assignments() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                  id="assignments-search"
                 />
               </div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                id="assignments-status-filter"
               >
                 <option value="all">{t('student.assignments.status.all')}</option>
                 <option value="pending">{t('student.assignments.status.pending')}</option>
@@ -117,7 +175,7 @@ function Assignments() {
           </div>
 
           {/* Assignments Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="assignments-grid">
             {filteredAssignments.map(assignment => (
               <div
                 key={assignment.id}
@@ -158,6 +216,7 @@ function Assignments() {
                   <button
                     onClick={() => setSelectedAssignment(assignment)}
                     className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    data-tour="open-assignment"
                   >
                     {assignment.status === 'pending' ? t('student.assignments.buttons.submit') : t('student.assignments.buttons.viewDetails')}
                     <ChevronRight className="ml-2 h-4 w-4" />
@@ -240,6 +299,4 @@ function Assignments() {
       )}
     </div>
   );
-}
-
-export default Assignments; 
+} 

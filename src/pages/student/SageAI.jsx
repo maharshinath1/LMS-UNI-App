@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Bot, Sparkles, BookOpen, Lightbulb, Target, Zap, Lock, X, Send, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -38,13 +38,11 @@ const proPrompts = [
 
 export default function SageAI() {
   const { t } = useTranslation();
-  // Chat State
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
 
-  // Chat Functions
   const handlePromptClick = (prompt) => {
     setInputMessage(prompt);
     setShowChat(true);
@@ -64,7 +62,6 @@ export default function SageAI() {
     setInputMessage('');
     setIsLoading(true);
 
-    // Simulate AI response
     setTimeout(() => {
       const aiResponse = {
         id: Date.now() + 1,
@@ -104,7 +101,7 @@ export default function SageAI() {
       <Sidebar role="student" />
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4" id="sageai-header">
           <div className="flex items-center space-x-3">
             <Bot className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('student.sageAI.title')}</h1>

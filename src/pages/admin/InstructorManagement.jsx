@@ -38,10 +38,10 @@ export default function InstructorManagement() {
       <div className="flex-1 overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.title')}</h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.title', 'Instructor Management')}</h1>
             <button onClick={() => setShowAddModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors">
               <Plus size={20} />
-              <span>{t('admin.instructorManagement.addNew')}</span>
+              <span>{t('admin.instructorManagement.addNew', 'Add New')}</span>
             </button>
           </div>
 
@@ -50,13 +50,13 @@ export default function InstructorManagement() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.name')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.email')}</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.department')}</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.courses')}</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.batches')}</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.engagement')}</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.actions')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.name', 'Name')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.email', 'Email')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.department', 'Department')}</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.courses', 'Courses')}</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.batches', 'Batches')}</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.engagement', 'Engagement')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('admin.instructorManagement.table.actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -84,10 +84,10 @@ export default function InstructorManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                      <button onClick={() => openEditModal(instructor)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200" title={t('admin.instructorManagement.actions.edit')}>
+                      <button onClick={() => openEditModal(instructor)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200" title={t('admin.instructorManagement.actions.edit', 'Edit')}>
                         <Edit size={18} />
                       </button>
-                      <button onClick={() => handleDelete(instructor)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200" title={t('admin.instructorManagement.actions.delete')}>
+                      <button onClick={() => handleDelete(instructor)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200" title={t('admin.instructorManagement.actions.delete', 'Delete')}>
                         <Trash2 size={18} />
                       </button>
                     </td>
@@ -104,28 +104,28 @@ export default function InstructorManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify_center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg dark:bg-gray-800">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.addModal.title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.addModal.title', 'Add Instructor')}</h2>
               <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700"><X size={24} /></button>
             </div>
             <form onSubmit={handleAdd} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.name')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.name', 'Name')}</label>
                 <input type="text" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.email')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.email', 'Email')}</label>
                 <input type="email" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.department')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.addModal.fields.department', 'Department')}</label>
                 <select className="mt-1 block w_full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
-                  <option value="">{t('admin.instructorManagement.addModal.fields.selectDepartment')}</option>
+                  <option value="">{t('admin.instructorManagement.addModal.fields.selectDepartment', 'Select Department')}</option>
                   {departments.map(dep => <option key={dep} value={dep}>{dep}</option>)}
                 </select>
               </div>
               <div className="flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">{t('admin.instructorManagement.addModal.buttons.cancel')}</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">{t('admin.instructorManagement.addModal.buttons.add')}</button>
+                <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">{t('admin.instructorManagement.addModal.buttons.cancel', 'Cancel')}</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">{t('admin.instructorManagement.addModal.buttons.add', 'Add Instructor')}</button>
               </div>
             </form>
           </div>
@@ -137,28 +137,28 @@ export default function InstructorManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg dark:bg-gray-800">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.editModal.title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('admin.instructorManagement.editModal.title', 'Edit Instructor')}</h2>
               <button onClick={() => setShowEditModal(false)} className="text-gray-500 hover:text-gray-700"><X size={24} /></button>
             </div>
             <form onSubmit={handleEdit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.name')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.name', 'Name')}</label>
                 <input type="text" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.email')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.email', 'Email')}</label>
                 <input type="email" className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.department')}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('admin.instructorManagement.editModal.fields.department', 'Department')}</label>
                 <select className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" required value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}>
-                  <option value="">{t('admin.instructorManagement.editModal.fields.selectDepartment')}</option>
+                  <option value="">{t('admin.instructorManagement.editModal.fields.selectDepartment', 'Select Department')}</option>
                   {departments.map(dep => <option key={dep} value={dep}>{dep}</option>)}
                 </select>
               </div>
               <div className="flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">{t('admin.instructorManagement.editModal.buttons.cancel')}</button>
-                <button type="submit" className="px-4 py-2 bg-green-600 text_white rounded-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800">{t('admin.instructorManagement.editModal.buttons.save')}</button>
+                <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">{t('admin.instructorManagement.editModal.buttons.cancel', 'Cancel')}</button>
+                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800">{t('admin.instructorManagement.editModal.buttons.save', 'Save Changes')}</button>
               </div>
             </form>
           </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText } from 'lucide-react';
+import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import SageAISummaryPanel from '../../components/SageAISummaryPanel';
 
 const dummyCourses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -37,6 +38,10 @@ export default function StudentsManagement() {
   const [showModal, setShowModal] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [note, setNote] = useState('');
+  const [isInsightOpen, setIsInsightOpen] = useState(false);
+  const [insightSummary, setInsightSummary] = useState('');
+  const [insightGenerating, setInsightGenerating] = useState(false);
+  const [insightTitle, setInsightTitle] = useState('');
 
   const students = dummyStudents[selectedCourse] || [];
 
@@ -53,6 +58,37 @@ export default function StudentsManagement() {
   const saveNote = () => {
     if (activeStudent) activeStudent.notes = note;
     setShowModal(false);
+  };
+
+  const buildInsight = (s) => {
+    const performance = s.progress >= 85 ? 'excellent' : s.progress >= 70 ? 'good' : 'needs improvement';
+    const attendanceBand = s.attendance >= 90 ? 'very strong' : s.attendance >= 80 ? 'solid' : 'low';
+    const noteText = s.notes && s.notes.trim().length > 0 ? s.notes : 'No instructor notes available yet.';
+    return (
+      `AI summary for ${s.name} in ${selectedCourse}:
+
+Progress: ${s.progress}% (${performance}).
+Attendance: ${s.attendance}% (${attendanceBand}).
+Last active: ${s.lastActive}.
+
+Notes: ${noteText}
+
+Suggested actions:
+- Focus next week on topics with lower quiz scores or incomplete assignments.
+- Offer targeted support and brief 1:1 check-in if needed.
+- Encourage consistent attendance and timely submissions.`
+    );
+  };
+
+  const openInsight = (s) => {
+    setInsightTitle(`${s.name} — ${selectedCourse}`);
+    setInsightGenerating(true);
+    setIsInsightOpen(true);
+    // Simulate async generation
+    setTimeout(() => {
+      setInsightSummary(buildInsight(s));
+      setInsightGenerating(false);
+    }, 800);
   };
 
   return (
@@ -76,6 +112,7 @@ export default function StudentsManagement() {
                 <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.email')}</th>
                 <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.year')}</th>
                 <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.progress')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.aiInsight', 'AI Insight')}</th>
                 <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.attendance')}</th>
                 <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.lastActive')}</th>
                 <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.actions')}</th>
@@ -97,6 +134,12 @@ export default function StudentsManagement() {
                       <div className="bg-blue-600 h-3 rounded-full" style={{ width: `${s.progress}%` }}></div>
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{s.progress}%</div>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <button className="inline-flex items-center gap-1 text-fuchsia-700 dark:text-fuchsia-300 hover:text-fuchsia-900 dark:hover:text-fuchsia-100 px-2 py-1 rounded" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s)}>
+                      <Sparkles size={16} />
+                      <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
+                    </button>
                   </td>
                   <td className="py-3 px-4 text-center">
                     <span className={`inline-block w-4 h-4 rounded-full ${getAttendanceColor(s.attendance)}`}></span>
@@ -152,6 +195,14 @@ export default function StudentsManagement() {
           </div>
         )}
       </div>
+
+      <SageAISummaryPanel
+        isOpen={isInsightOpen}
+        onClose={() => { setIsInsightOpen(false); setInsightSummary(''); }}
+        videoTitle={insightTitle}
+        summary={insightSummary}
+        isGenerating={insightGenerating}
+      />
     </div>
   );
 } 

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Calendar, Clock, BookOpen, Users, MapPin, ChevronLeft, ChevronRight, PlusCircle, Video, Grid, GraduationCap, Clock3, CalendarCheck, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTour } from '../../context/TourContext.jsx';
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const classColors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-pink-100', 'bg-yellow-100'];
@@ -35,11 +37,57 @@ function formatDate(date) {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+// Minimal Hijri converter (approx, demo only)
+function gregorianToHijri(date) {
+  const GREGORIAN_EPOCH = 1721425.5;
+  const ISLAMIC_EPOCH = 1948439.5;
+  function floor(n) { return Math.floor(n); }
+  function jdFromDate(d) {
+    const a = floor((14 - (d.getMonth() + 1)) / 12);
+    const y = d.getFullYear() + 4800 - a;
+    const m = (d.getMonth() + 1) + 12 * a - 3;
+    return (d.getDate() + floor((153 * m + 2) / 5) + 365 * y + floor(y / 4) - floor(y / 100) + floor(y / 400) - 32045);
+  }
+  const jd = jdFromDate(date);
+  const islamicDays = jd - 1948439 + 10632;
+  const n = floor((islamicDays - 1) / 10631);
+  const r = islamicDays - 10631 * n;
+  const j = floor((r - 1) / 354.36667);
+  const y = 30 * n + j;
+  const k = r - floor(354.36667 * j);
+  const m = floor((k - 1) / 29.5) + 1;
+  const d = k - floor(29.5 * (m - 1));
+  return { y, m, d };
+}
+
+const hijriMonthNames = ['Muharram','Safar','Rabiʿ I','Rabiʿ II','Jumada I','Jumada II','Rajab','Shaʿban','Ramadan','Shawwal','Dhu al‑Qaʿdah','Dhu al‑Hijjah'];
+
+// Basic KSA holidays (demo)
+const ksaFixedHolidays = [
+  { gMonth: 2, gDay: 22, label: 'Saudi Founding Day' },
+  { gMonth: 9, gDay: 23, label: 'Saudi National Day' },
+];
+const ksaHijriHolidays = [
+  { hMonth: 10, hDays: [1,2,3], label: 'Eid al‑Fitr' },
+  { hMonth: 12, hDays: [10,11,12,13], label: 'Eid al‑Adha' },
+];
+
+function getHolidayBadge(date) {
+  const gMonth = date.getMonth() + 1; const gDay = date.getDate();
+  if (ksaFixedHolidays.some(h => h.gMonth === gMonth && h.gDay === gDay)) return 'KSA';
+  const h = gregorianToHijri(date);
+  if (ksaHijriHolidays.some(hh => hh.hMonth === h.m && hh.hDays.includes(h.d))) return 'KSA';
+  return '';
+}
+
 export default function Schedule() {
   const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
+  const { startTour } = useTour();
   const [selectedDay, setSelectedDay] = useState(getToday());
   const [viewMode, setViewMode] = useState('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [useHijri, setUseHijri] = useState(currentLanguage === 'ar');
   
   const today = getToday();
   const todayClasses = scheduleData.filter(cls => cls.day === today);
@@ -52,6 +100,84 @@ export default function Schedule() {
     const end = parseInt(cls.end.split(':')[0]);
     return acc + (end - start);
   }, 0);
+
+  // Week helpers (start of week = Monday)
+  function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = (day + 6) % 7; // days since Monday
+    d.setDate(d.getDate() - diff);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function getDateForSelectedDay(anchorDate, selectedDayLabel) {
+    const start = getStartOfWeek(anchorDate);
+    const idx = weekDays.indexOf(selectedDayLabel);
+    const result = new Date(start);
+    result.setDate(start.getDate() + idx);
+    return result;
+  }
+
+  const startScheduleTour = () => {
+    const steps = [
+      { 
+        target: '#schedule-view-toggle', 
+        title: t('student.tour.schedule.viewTitle', 'View Options'), 
+        content: t('student.tour.schedule.viewDesc', 'Switch between weekly and monthly calendar views.'),
+        placement: 'bottom',
+        disableBeacon: true
+      },
+      { 
+        target: '#date-system-toggle', 
+        title: t('student.tour.schedule.dateSystemTitle', 'Calendar System'), 
+        content: t('student.tour.schedule.dateSystemDesc', 'Toggle between Gregorian and Hijri calendar systems.'),
+        placement: 'bottom',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="today-classes"]', 
+        title: t('student.tour.schedule.todayTitle', 'Today\'s Schedule'), 
+        content: t('student.tour.schedule.todayDesc', 'View today\'s classes and quickly join online sessions.'),
+        placement: 'right',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="schedule-actions"]', 
+        title: t('student.tour.schedule.actionsTitle', 'Quick Actions'), 
+        content: t('student.tour.schedule.actionsDesc', 'Join online classes, set reminders, or sync with your calendar.'),
+        placement: 'left',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:schedule:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:schedule:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:schedule:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startScheduleTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startScheduleTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -66,7 +192,7 @@ export default function Schedule() {
               </h1>
               <p className="text-gray-500 dark:text-gray-300">{t('student.schedule.subtitle')}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1" id="schedule-view-toggle">
               <button
                 onClick={() => setViewMode('weekly')}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
@@ -88,10 +214,16 @@ export default function Schedule() {
 
           <div className="space-y-4">
             {/* Today's Classes */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4" data-tour="today-classes">
               <h2 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">
                 <Clock className="w-5 h-5" /> {t('student.schedule.todayTitle')}
               </h2>
+              {/* Hijri/Gregorian Toggle */}
+              <div className="mb-3 flex items-center gap-2" id="date-system-toggle">
+                <span className="text-xs text-gray-500">{t('student.schedule.dateSystem.label')}</span>
+                <button onClick={() => setUseHijri(false)} className={`px-2 py-1 rounded text-xs ${!useHijri ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('student.schedule.dateSystem.gregorian')}</button>
+                <button onClick={() => setUseHijri(true)} className={`px-2 py-1 rounded text-xs ${useHijri ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('student.schedule.dateSystem.hijri')}</button>
+              </div>
               <div className="flex overflow-x-auto pb-2 -mx-1 px-1">
                 <div className="flex gap-3 min-w-min">
                   {todayClasses.length === 0 && <div className="text-gray-400 dark:text-gray-500">{t('student.schedule.noToday')}</div>}
@@ -164,7 +296,7 @@ export default function Schedule() {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4" data-tour="schedule-actions">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">{t('student.schedule.actions.title')}</h3>
                 <div className="grid grid-cols-2 gap-3 h-[calc(100%-3rem)]">
                   <button className="flex flex-col items-center justify-center gap-3 p-6 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 transition-colors">
@@ -195,7 +327,8 @@ export default function Schedule() {
                   onClick={() => setSelectedDay(day)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     selectedDay === day ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900'
-                  }`}
+                  } ${day==='Friday' ? 'ring-1 ring-green-400/60' : ''}`}
+                  title={day === 'Friday' ? t('student.schedule.fridayHint') : ''}
                 >
                   {day.slice(0, 3)}
                 </button>
@@ -208,6 +341,11 @@ export default function Schedule() {
                 <div className="flex items-center gap-2 mb-4">
                   <BookOpen className="w-5 h-5 text-purple-600" />
                   <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('student.schedule.weekly.header', { day: selectedDay })}</h2>
+                  {useHijri && (
+                    <span className="ml-2 text-xs text-gray-500">
+                      {(() => { const d = getDateForSelectedDay(currentDate, selectedDay); const h = gregorianToHijri(d); return `${h.d} ${hijriMonthNames[h.m-1]} ${h.y}`; })()}
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-3">
                   {filteredClasses.length === 0 && (
@@ -250,7 +388,7 @@ export default function Schedule() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <Calendar className="w-6 h-6 text-purple-600" />
-                    {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    {useHijri ? `${hijriMonthNames[gregorianToHijri(currentDate).m - 1]} ${gregorianToHijri(currentDate).y}` : currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </h2>
                   <div className="flex gap-2">
                     <button
@@ -269,7 +407,7 @@ export default function Schedule() {
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                   {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(day => (
-                    <div key={day} className="p-2 text-center font-semibold text-gray-600 dark:text-gray-400">
+                    <div key={day} className={`p-2 text-center font-semibold ${day==='fri' ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
                       {t(`student.schedule.days.short.${day}`)}
                     </div>
                   ))}
@@ -280,6 +418,8 @@ export default function Schedule() {
                     const day = index + 1;
                     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
                     const isToday = new Date().toDateString() === date.toDateString();
+                    const isFriday = date.getDay() === 5;
+                    const holiday = getHolidayBadge(date);
                     const dayClasses = scheduleData.filter(cls => {
                       const classDay = weekDays.indexOf(cls.day);
                       return classDay === (date.getDay() - 1);
@@ -288,14 +428,15 @@ export default function Schedule() {
                     return (
                       <div
                         key={day}
-                        className={`p-2 min-h-[100px] border border-gray-100 dark:border-gray-700 ${
-                          isToday ? 'bg-blue-50 dark:bg-blue-900' : ''
-                        }`}
+                        className={`p-2 min-h-[110px] border border-gray-100 dark:border-gray-700 ${isToday ? 'bg-blue-50 dark:bg-blue-900' : ''} ${isFriday ? 'bg-green-50/40 dark:bg-green-900/20' : ''}`}
                       >
-                        <div className={`text-right mb-1 ${
+                        <div className={`flex items-center justify-between mb-1 ${
                           isToday ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
                         }`}>
-                          {day}
+                          <span>{day}</span>
+                          <span className="text-[10px] text-gray-500">
+                            {useHijri ? (() => { const h = gregorianToHijri(date); return `${h.d} ${hijriMonthNames[h.m-1]}`; })() : ''}
+                          </span>
                         </div>
                         <div className="space-y-1">
                           {dayClasses.map((cls, idx) => (
@@ -307,6 +448,9 @@ export default function Schedule() {
                               <div className="text-gray-600 dark:text-gray-400">{cls.start}</div>
                             </div>
                           ))}
+                          {holiday && (
+                            <div className="text-[10px] text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1 py-0.5 rounded inline-block">{t('student.schedule.holidayKSA')}</div>
+                          )}
                         </div>
                       </div>
                     );

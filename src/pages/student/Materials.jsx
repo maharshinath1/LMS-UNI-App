@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { 
   FileText, 
@@ -16,6 +16,7 @@ import {
   FileCode
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const materials = [
   {
@@ -91,6 +92,7 @@ function Materials() {
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const { startTour } = useTour();
 
   const filteredMaterials = materials.filter(material => {
     const matchesSearch = material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -136,6 +138,60 @@ function Materials() {
     return t(`student.materials.types.${key}`, type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
   };
 
+  const startMaterialsTour = () => {
+    const steps = [
+      { 
+        target: '#materials-search', 
+        title: t('student.tour.materials.title', 'Find Materials'), 
+        content: t('student.tour.materials.desc', 'Search for course materials by title, course name, or description.'),
+        placement: 'left',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="materials-filters"]', 
+        title: t('student.tour.materials.filtersTitle', 'Filter Options'), 
+        content: t('student.tour.materials.filtersDesc', 'Filter materials by course or content type to find what you need.'),
+        placement: 'left',
+        disableBeacon: true
+      },
+      { 
+        target: '[data-tour="materials-list"]', 
+        title: t('student.tour.materials.listTitle', 'Materials Library'), 
+        content: t('student.tour.materials.listDesc', 'Browse all available documents, projects, and course resources.'),
+        placement: 'top-start',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    
+    if (steps.length) startTour('student:materials:v1', steps);
+  };
+
+  useEffect(() => {
+    // Auto-start tour for new users
+    const key = 'tour:student:materials:v1:autostart';
+    const hasSeenTour = localStorage.getItem(key);
+    const tourCompleted = localStorage.getItem('tour:student:materials:v1:state');
+    
+    if (!hasSeenTour && tourCompleted !== 'completed') {
+      setTimeout(() => {
+        startMaterialsTour();
+        localStorage.setItem(key, 'shown');
+      }, 600);
+    }
+    
+    // Handle tour launches from navigation
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startMaterialsTour(), 200);
+      }
+    };
+    
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="student" />
@@ -147,7 +203,7 @@ function Materials() {
           </div>
 
           {/* Filters */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-6 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-6 p-4" data-tour="materials-filters">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
@@ -157,6 +213,7 @@ function Materials() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                  id="materials-search"
                 />
               </div>
               <select
@@ -189,7 +246,7 @@ function Materials() {
           </div>
 
           {/* Materials Grid */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6" data-tour="materials-list">
             {filteredMaterials.map(material => (
               <div
                 key={material.id}
@@ -239,6 +296,7 @@ function Materials() {
                     <button
                       onClick={() => setSelectedMaterial(material)}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                      data-tour="view-details-btn"
                     >
                       {t('student.materials.labels.viewDetails')}
                       <ChevronRight className="h-4 w-4" />

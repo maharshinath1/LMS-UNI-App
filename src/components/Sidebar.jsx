@@ -19,7 +19,8 @@ import {
   Library,
   Sun,
   Moon,
-  Bot
+  Bot,
+  HelpCircle
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -119,8 +120,14 @@ export default function Sidebar({ role: propRole }) {
     }
   };
 
+  const startStudentFullTourFromSidebar = () => {
+    if (role !== 'student') return; // Scope to student for now
+    localStorage.setItem('tour:hint:sidebar:shown', '1');
+    window.dispatchEvent(new CustomEvent('tour:open-launcher'));
+  };
+
   return (
-    <div className="w-64 h-screen bg-[#11296F] dark:bg-gray-900 text-white dark:text-gray-100 flex flex-col">
+    <div id="sidebar-nav" className="w-64 h-screen bg-[#11296F] dark:bg-gray-900 text-white dark:text-gray-100 flex flex-col" data-tour="sidebar">
       {/* Logo */}
       <div className="p-4 border-b border-[#0a1f4d] dark:border-gray-800">
         <h1 className="text-xl font-bold">{t('sidebar.brand')}</h1>
@@ -152,6 +159,7 @@ export default function Sidebar({ role: propRole }) {
             className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-[#0a1f4d] dark:hover:bg-gray-800 transition-colors ${
               activeTab === item.id ? 'bg-[#0a1f4d] dark:bg-gray-800' : ''
             }`}
+            data-tour={`sidebar-link-${item.id}`}
           >
             <item.icon size={20} />
             <span>{t(item.labelKey)}</span>
@@ -163,6 +171,25 @@ export default function Sidebar({ role: propRole }) {
       <div className="border-t border-[#0a1f4d] dark:border-gray-800">
         <LanguageSwitcher />
       </div>
+
+      {/* Start Tour */}
+      {role === 'student' && (
+        <button
+          onClick={startStudentFullTourFromSidebar}
+          className="p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 hover:bg-[#0a1f4d] dark:hover:bg-gray-800 transition-colors"
+          title={t('student.tour.cta.try', 'Start Tour')}
+          aria-label={t('student.tour.cta.try', 'Start Tour')}
+        >
+          <HelpCircle size={20} />
+          <span>{t('student.tour.cta.try', 'Start Tour')}</span>
+          {!localStorage.getItem('tour:hint:sidebar:shown') && (
+            <span className="ml-auto flex items-center gap-2 text-xs text-yellow-200">
+              <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              {t('student.tour.cta.hint', 'Click here')}
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Theme Switch Button */}
       <button
