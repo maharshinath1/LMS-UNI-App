@@ -81,6 +81,20 @@
         "gridDesc": "Each card shows your schedule, next class time, and current progress.",
         "detailsTitle": "Course Details",
         "detailsDesc": "Click to access syllabus, materials, videos, and weekly content."
+      },
+      "profile": {
+        "card": {
+          "title": "Your Profile",
+          "desc": "View your basic info and update your photo."
+        },
+        "form": {
+          "title": "Edit Details",
+          "desc": "Update contact info, program, year, and more."
+        },
+        "activity": {
+          "title": "Activity & Stats",
+          "desc": "Review your recent activity and progress insights."
+        }
       }
     },
     "ecollab": {
@@ -430,6 +444,7 @@
         "projectGuidance": { "title": "Project Guidance", "description": "Step-by-step project planning and guidance" }
       },
       "panel": {
+        "copy": { "button": "Copy Summary", "copied": "Copied!" },
         "summaryTitle": "Sage AI Summary",
         "poweredBy": "Powered by AI",
         "videoTitle": "Video Title",
@@ -699,11 +714,20 @@
         "newTitle": "Add Event",
         "fields": { "title": "Title", "type": "Type", "date": "Date", "time": "Time", "description": "Description" },
         "types": { "class": "Class", "assignment": "Assignment", "activity": "Activity", "holiday": "Holiday", "university": "University Event" },
-        "actions": { "save": "Save Changes", "add": "Add Event" }
+        "actions": { "save": "Save Changes", "add": "Add Event", "delete": "Delete" }
       },
       "jumuahWarning": {
         "title": "Heads-up: Friday (Jumu’ah)",
         "desc": "The selected time overlaps the Jumu’ah window ({{start}}–{{end}}). Consider choosing another time."
+      },
+      "prayer": {
+        "title": "Prayer Times (Demo)",
+        "fajr": "Fajr",
+        "dhuhr": "Dhuhr",
+        "asr": "Asr",
+        "maghrib": "Maghrib",
+        "isha": "Isha",
+        "footer": "Connected to external prayer times API (to integrate)"
       }
     },
     "sageAI": {
@@ -718,6 +742,54 @@
         "back": "Back",
         "chatTitle": "Sage AI Chat",
         "placeholder": "Type a message..."
+      }
+    },
+    "tour": {
+      "sidebar": { "title": "Navigation", "desc": "Use the sidebar to navigate between instructor features." },
+      "dashboard": {
+        "stats": { "title": "Your Teaching Overview", "desc": "Quick stats about your courses, students, grading and upcoming classes." },
+        "messages": { "title": "Student Messages", "desc": "Review and respond to the latest messages from your students." }
+      },
+      "courses": {
+        "grid": { "title": "Your Courses", "desc": "Browse and manage all your courses here." },
+        "details": { "title": "Course Details", "desc": "Open a course to add materials or update weekly content." }
+      },
+      "students": {
+        "table": { "title": "Students Roster", "desc": "View progress, attendance, and manage student notes." },
+        "aiInsight": { "title": "AI Insight (Preview)", "desc": "First insight shows for 10 seconds, then locks to PRO for future." }
+      },
+      "assignments": {
+        "filters": { "title": "Filter & Search", "desc": "Search by title, filter by course and status." },
+        "list": { "title": "Assignments List", "desc": "View due dates, submissions, points and actions." }
+      },
+      "grades": {
+        "table": { "title": "Grades Overview", "desc": "Review and edit final grades and feedback." }
+      },
+      "calendar": {
+        "nav": { "title": "Navigate Months", "desc": "Move between months and switch date systems." },
+        "grid": { "title": "Calendar Grid", "desc": "Click a day to add an event; colored pills show events." },
+        "hijri": { "title": "Hijri/Gregorian", "desc": "Toggle between Hijri and Gregorian views." },
+        "prayer": { "title": "Prayer Times (Demo)", "desc": "Demo panel with prayer times; Friday conflicts are highlighted." }
+      },
+      "materials": {
+        "upload": { "title": "Upload Materials", "desc": "Add new PDFs, quizzes, or resources for your course." },
+        "list": { "title": "Materials Library", "desc": "Manage uploaded files and edit details." }
+      },
+      "messages": {
+        "list": { "title": "Conversations", "desc": "Search, select, and review student conversations." },
+        "compose": { "title": "Compose", "desc": "Create or edit a message to students." }
+      },
+      "notifications": {
+        "filter": { "title": "Target Audience", "desc": "Choose recipients for your announcements." },
+        "list": { "title": "Announcements List", "desc": "Create, edit, and manage announcements." }
+      },
+      "profile": {
+        "actions": { "title": "Profile & Actions", "desc": "Update details, change password, and access quick links." }
+      },
+      "complete": {
+        "title": "Instructor Onboarding Tour Complete!",
+        "desc": "You have completed the instructor tour and explored the key teaching features. You're ready to go!",
+        "restart": "Restart tour"
       }
     }
   },

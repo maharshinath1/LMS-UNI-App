@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Send, Trash2, Plus, MessageSquare, User, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyStudents = [
   { id: 1, name: 'Alice Johnson' },
@@ -17,11 +18,32 @@ const dummyMessages = [
 
 export default function StudentMessages() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [messages, setMessages] = useState(dummyMessages);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(dummyStudents[0].id);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startMessagesTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startMessagesTour = () => {
+    const steps = [
+      { target: '[data-tour="instructor-messages-list"]', title: t('instructor.tour.messages.list.title', 'Conversations'), content: t('instructor.tour.messages.list.desc', 'Search, select, and review student conversations.'), placement: 'top', disableBeacon: true },
+      { target: '[data-tour="instructor-messages-compose"]', title: t('instructor.tour.messages.compose.title', 'Compose'), content: t('instructor.tour.messages.compose.desc', 'Create or edit a message to students.'), placement: 'left', disableBeacon: true }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:messages:v1', steps);
+  };
 
   const openAddMessage = () => {
     setModalMessage({ studentId: selectedStudent, message: '', timestamp: new Date().toISOString() });
@@ -58,10 +80,10 @@ export default function StudentMessages() {
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="instructor" />
       <div className="flex-1 overflow-auto p-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6" data-tour="instructor-messages-list">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.studentMessages.title')}</h1>
-            <button onClick={openAddMessage} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2">
+            <button onClick={openAddMessage} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2" data-tour="instructor-messages-compose">
               <Plus size={18} /> {t('instructor.studentMessages.new')}
             </button>
           </div>

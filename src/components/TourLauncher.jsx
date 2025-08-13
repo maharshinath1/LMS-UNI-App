@@ -19,7 +19,8 @@ export default function TourLauncher() {
 
 	const close = () => setOpen(false);
 
-	const fullSequenceDefault = [
+	// Student full tour sequence (sanitized)
+	const studentFullSequence = [
 		'/student/courses',
 		'/student/assignments',
 		'/student/grades',
@@ -27,41 +28,61 @@ export default function TourLauncher() {
 		'/student/schedule',
 		'/student/messages',
 		'/student/notifications',
-		'/student/ecollab'
+		'/student/ecollab',
+		'/student/profile'
 	];
 
-	// Only allow the default set of pages in the full tour
-	const allowedPaths = new Set(fullSequenceDefault);
+	// Instructor full tour sequence (exclude Sage AI)
+	const instructorFullSequence = [
+		'/instructor/courses',
+		'/instructor/students',
+		'/instructor/assignments',
+		'/instructor/grades',
+		'/instructor/calendar',
+		'/instructor/materials',
+		'/instructor/messages',
+		'/instructor/notifications',
+		'/instructor/profile'
+	];
+
+	const isInstructor = location.pathname.startsWith('/instructor');
+
+	const allowedPaths = new Set([...
+		studentFullSequence,
+		...instructorFullSequence
+	]);
 
 	const getFullSequence = () => {
 		try {
 			const stored = JSON.parse(localStorage.getItem('tour:full:sequence') || '[]');
 			const cleaned = (Array.isArray(stored) ? stored : []).filter(p => allowedPaths.has(p));
-			return cleaned.length ? cleaned : fullSequenceDefault;
-		} catch { return fullSequenceDefault; }
+			if (cleaned.length) return cleaned;
+			return isInstructor ? instructorFullSequence : studentFullSequence;
+		} catch { return isInstructor ? instructorFullSequence : studentFullSequence; }
 	};
 
 	const restartFull = () => {
-		// Force-set to the default sequence every time to avoid stale or invalid routes (e.g., Sage AI)
+		const full = isInstructor ? instructorFullSequence : studentFullSequence;
 		localStorage.setItem('tour:mode', 'full');
-		localStorage.setItem('tour:full:sequence', JSON.stringify(fullSequenceDefault));
-		localStorage.setItem('tour:queue', JSON.stringify(fullSequenceDefault));
-		localStorage.setItem('tour:launch', 'student-full');
+		localStorage.setItem('tour:full:sequence', JSON.stringify(full));
+		localStorage.setItem('tour:queue', JSON.stringify(full));
+		localStorage.setItem('tour:launch', isInstructor ? 'instructor-full' : 'student-full');
 		setOpen(false);
-		
-		// Always navigate to dashboard first to start the full tour from the beginning
-		if (location.pathname !== '/student/dashboard') {
-			navigate('/student/dashboard');
+		// Navigate to correct dashboard first
+		const dash = isInstructor ? '/instructor/dashboard' : '/student/dashboard';
+		if (location.pathname !== dash) {
+			navigate(dash);
 		} else {
 			window.dispatchEvent(new CustomEvent('tour:launch'));
 		}
 	};
 
 	const pageOnly = () => {
-		if (!localStorage.getItem('tour:full:sequence')) localStorage.setItem('tour:full:sequence', JSON.stringify(getFullSequence()));
+		const full = getFullSequence();
+		if (!localStorage.getItem('tour:full:sequence')) localStorage.setItem('tour:full:sequence', JSON.stringify(full));
 		localStorage.setItem('tour:mode', 'single');
 		localStorage.setItem('tour:queue', JSON.stringify([]));
-		localStorage.setItem('tour:launch', 'student-resume');
+		localStorage.setItem('tour:launch', isInstructor ? 'instructor-resume' : 'student-resume');
 		setOpen(false);
 		window.dispatchEvent(new CustomEvent('tour:launch'));
 	};

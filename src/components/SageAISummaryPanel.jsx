@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Copy, Check, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTypewriter } from '../utils/typewriterEffect';
 
 const SageAISummaryPanel = ({ 
   isOpen, 
@@ -8,25 +9,17 @@ const SageAISummaryPanel = ({
   videoTitle, 
   summary, 
   className = '',
-  isGenerating = false 
+  isGenerating = false,
+  proLock = false,
+  onSummaryTyped
 }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const [showUpsell, setShowUpsell] = useState(false);
-  
-  // Typewriter disabled for PRO lock flow
-  const isComplete = true;
-
-  // Show PRO lock immediately once summary is ready
-  useEffect(() => {
-    if (!isOpen) return;
-    if (!summary) return;
-    setShowUpsell(true);
-  }, [isOpen, summary]);
+  const { displayedText } = useTypewriter(summary || '', { speed: 15, onComplete: () => { if (onSummaryTyped) onSummaryTyped(); } });
 
   const handleCopySummary = async () => {
     try {
-      await navigator.clipboard.writeText(summary);
+      await navigator.clipboard.writeText(summary || '');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {}
@@ -63,9 +56,8 @@ const SageAISummaryPanel = ({
             <div className="mb-4">
               <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-3">{t('student.sageAI.panel.aiGenerated')}</h3>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 min-h-[200px] relative">
-                {summary ? (
+                {proLock ? (
                   <>
-                    {/* Locked placeholder instead of preview text */}
                     <div className="h-28 rounded-md border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-600/40 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                       <div className="flex items-center gap-2">
                         <Lock size={16} />
@@ -83,6 +75,10 @@ const SageAISummaryPanel = ({
                       <button className="px-3 py-1.5 rounded-md text-white bg-purple-600 hover:bg-purple-700 text-xs whitespace-nowrap">{t('student.sageAI.panel.upsell.button')}</button>
                     </div>
                   </>
+                ) : summary ? (
+                  <div className="prose dark:prose-invert max-w-none text-sm leading-6 text-gray-800 dark:text-gray-100 whitespace-pre-wrap">
+                    {displayedText}
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
                     <div className="text-center">
@@ -94,7 +90,12 @@ const SageAISummaryPanel = ({
               </div>
             </div>
 
-            {/* Copy button removed for locked view */}
+            {!proLock && summary && (
+              <button onClick={handleCopySummary} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 text-sm">
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? t('student.sageAI.panel.copy.copied') : t('student.sageAI.panel.copy.button')}
+              </button>
+            )}
           </div>
 
           <div className="p-6 border-t border-gray-200 dark:border-gray-700">

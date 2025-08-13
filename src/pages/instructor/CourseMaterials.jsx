@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { FileText, Upload, Edit, Trash2, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyCourses = [
   { id: 1, name: 'CS101' },
@@ -18,10 +19,31 @@ const dummyMaterials = [
 
 export default function CourseMaterials() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [materials, setMaterials] = useState(dummyMaterials);
   const [showModal, setShowModal] = useState(false);
   const [modalMaterial, setModalMaterial] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(dummyCourses[0].id);
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startMaterialsTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startMaterialsTour = () => {
+    const steps = [
+      { target: '[data-tour="instructor-materials-upload"]', title: t('instructor.tour.materials.upload.title', 'Upload Materials'), content: t('instructor.tour.materials.upload.desc', 'Add new PDFs, quizzes, or resources for your course.'), placement: 'left', disableBeacon: true },
+      { target: '[data-tour="instructor-materials-list"]', title: t('instructor.tour.materials.list.title', 'Materials Library'), content: t('instructor.tour.materials.list.desc', 'Manage uploaded files and edit details.'), placement: 'top', disableBeacon: true }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:materials:v1', steps);
+  };
 
   const openAddMaterial = () => {
     setModalMaterial({ title: '', type: 'syllabus', file: '', uploadDate: new Date().toISOString().split('T')[0], courseId: selectedCourse });
@@ -66,7 +88,7 @@ export default function CourseMaterials() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('instructor.courseMaterials.title')}</h1>
-            <button onClick={openAddMaterial} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 flex items-center gap-2">
+            <button onClick={openAddMaterial} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 flex items-center gap-2" data-tour="instructor-materials-upload">
               <Plus size={18} /> {t('instructor.courseMaterials.add')}
             </button>
           </div>
@@ -78,7 +100,7 @@ export default function CourseMaterials() {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="instructor-materials-list">
             {materials.filter(m => m.courseId === selectedCourse).map(material => (
               <div key={material.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col bg-white dark:bg-gray-800">
                 <div className="flex justify-between items-start">

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { UserCircle, Camera, Mail, Phone, Briefcase, Building2, Calendar, Globe, MapPin, Key, Linkedin, Github, Activity, CheckCircle, BarChart2 } from 'lucide-react';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const mockProfile = {
   name: 'John Smith',
@@ -23,12 +24,54 @@ const mockProfile = {
 };
 
 export default function StudentProfile() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { startTour } = useTour();
   const [profile, setProfile] = useState(mockProfile);
   const [pic, setPic] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { showBar, setShowBar } = useAccessibility();
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'student-full' || launch === 'student-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startStudentProfileTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startStudentProfileTour = () => {
+    const isRTL = i18n.dir() === 'rtl';
+    const pr = (ltr, rtl) => (isRTL ? rtl : ltr);
+    const steps = [
+      {
+        target: '[data-tour="student-profile-card"]',
+        title: t('student.tour.profile.card.title', 'Your Profile'),
+        content: t('student.tour.profile.card.desc', 'View your basic info and update your photo.'),
+        placement: pr('right', 'left'),
+        disableBeacon: true
+      },
+      {
+        target: '[data-tour="student-profile-form"]',
+        title: t('student.tour.profile.form.title', 'Edit Details'),
+        content: t('student.tour.profile.form.desc', 'Update contact info, program, year, and more.'),
+        placement: pr('top-start', 'top-end'),
+        disableBeacon: true
+      },
+      {
+        target: '[data-tour="student-profile-stats"]',
+        title: t('student.tour.profile.activity.title', 'Activity & Stats'),
+        content: t('student.tour.profile.activity.desc', 'Review your recent activity and progress insights.'),
+        placement: pr('left', 'right'),
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('student:profile:v1', steps);
+  };
 
   const handlePicChange = (e) => {
     const file = e.target.files[0];
@@ -66,7 +109,7 @@ export default function StudentProfile() {
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Profile Card */}
-          <div className="col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col items-center">
+          <div className="col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col items-center" data-tour="student-profile-card">
             <div className="relative mb-4">
               {pic || profile.profilePic ? (
                 <img src={pic || profile.profilePic} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-blue-600" />
@@ -106,7 +149,7 @@ export default function StudentProfile() {
           </div>
 
           {/* Edit Form & Widgets */}
-          <div className="col-span-2 flex flex-col gap-8">
+          <div className="col-span-2 flex flex-col gap-8" data-tour="student-profile-form">
             {/* Edit Form */}
             <form className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
@@ -147,10 +190,6 @@ export default function StudentProfile() {
                 <input type="text" name="address" value={profile.address} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.nationality')}</label>
-                <input type="text" name="nationality" value={profile.nationality} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text_gray-700 dark:text-gray-300">{t('student.profile.form.role')}</label>
                 <input type="text" name="role" value={profile.role} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" disabled />
               </div>
@@ -160,7 +199,7 @@ export default function StudentProfile() {
             </form>
 
             {/* Quick Stats & Activity */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col gap-4" data-tour="student-profile-stats">
               <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold mb-2"><Activity size={18}/> {t('student.profile.activity.title')}</div>
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300"><CheckCircle size={16}/> {t('student.profile.activity.lastLogin')}: <span className="font-medium text-gray-700 dark:text-gray-100">{profile.lastLogin}</span></div>
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300"><BarChart2 size={16}/> {t('student.profile.activity.courses')}: <span className="font-medium text-blue-700 dark:text-blue-400">{profile.stats.courses}</span></div>

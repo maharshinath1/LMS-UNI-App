@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText, Sparkles } from 'lucide-react';
+import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import SageAISummaryPanel from '../../components/SageAISummaryPanel';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyCourses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -34,6 +35,7 @@ function getAttendanceColor(att) {
 
 export default function StudentsManagement() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [selectedCourse, setSelectedCourse] = useState(dummyCourses[0].code);
   const [showModal, setShowModal] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
@@ -42,6 +44,51 @@ export default function StudentsManagement() {
   const [insightSummary, setInsightSummary] = useState('');
   const [insightGenerating, setInsightGenerating] = useState(false);
   const [insightTitle, setInsightTitle] = useState('');
+  const [proLockInsight, setProLockInsight] = useState(false);
+  const previewTimerRef = useRef(null);
+  const [previewUsed, setPreviewUsed] = useState(false);
+
+  // Persist previewUsed per session in localStorage
+  useEffect(() => {
+    const used = localStorage.getItem('instructor:insight:previewUsed');
+    if (used === '1') setPreviewUsed(true);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('instructor:insight:previewUsed', previewUsed ? '1' : '0');
+  }, [previewUsed]);
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startStudentsTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startStudentsTour = () => {
+    const steps = [
+      {
+        target: '[data-tour="instructor-students-table"]',
+        title: t('instructor.tour.students.table.title', 'Students Roster'),
+        content: t('instructor.tour.students.table.desc', 'View progress, attendance, and manage student notes.'),
+        placement: 'top',
+        disableBeacon: true
+      },
+      {
+        target: '[data-tour="instructor-ai-insight"]',
+        title: t('instructor.tour.students.aiInsight.title', 'AI Insight (Preview)'),
+        content: t('instructor.tour.students.aiInsight.desc', 'First insight shows for 10 seconds, then locks to PRO for future.'),
+        placement: 'left',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:students:v1', steps);
+  };
 
   const students = dummyStudents[selectedCourse] || [];
 
@@ -80,15 +127,29 @@ Suggested actions:
     );
   };
 
-  const openInsight = (s) => {
+  const openInsight = (s, previewFirst = false) => {
     setInsightTitle(`${s.name} — ${selectedCourse}`);
-    setInsightGenerating(true);
     setIsInsightOpen(true);
-    // Simulate async generation
-    setTimeout(() => {
-      setInsightSummary(buildInsight(s));
+    // Clear any previous timer
+    if (previewTimerRef.current) {
+      clearTimeout(previewTimerRef.current);
+      previewTimerRef.current = null;
+    }
+    if (previewFirst && !previewUsed) {
+      // Show summary immediately, then lock after 5s
       setInsightGenerating(false);
-    }, 800);
+      setInsightSummary(buildInsight(s));
+      setProLockInsight(false);
+      previewTimerRef.current = setTimeout(() => {
+        setProLockInsight(true);
+        setPreviewUsed(true);
+      }, 10000);
+    } else {
+      // Locked view (PRO upsell)
+      setInsightSummary('');
+      setInsightGenerating(false);
+      setProLockInsight(true);
+    }
   };
 
   return (
@@ -104,7 +165,7 @@ Suggested actions:
           </select>
         </div>
         {/* Students Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto" data-tour="instructor-students-table">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
@@ -119,7 +180,7 @@ Suggested actions:
               </tr>
             </thead>
             <tbody>
-              {students.map((s) => (
+              {students.map((s, idx) => (
                 <tr key={s.id} className="border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 transition">
                   <td className="py-3 px-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
@@ -135,11 +196,18 @@ Suggested actions:
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{s.progress}%</div>
                   </td>
-                  <td className="py-3 px-4 text-center">
-                    <button className="inline-flex items-center gap-1 text-fuchsia-700 dark:text-fuchsia-300 hover:text-fuchsia-900 dark:hover:text-fuchsia-100 px-2 py-1 rounded" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s)}>
-                      <Sparkles size={16} />
-                      <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
-                    </button>
+                  <td className="py-3 px-4 text-center" data-tour="instructor-ai-insight">
+                    {idx === 0 ? (
+                      <button className="inline-flex items-center gap-1 text-fuchsia-700 dark:text-fuchsia-300 hover:text-fuchsia-900 dark:hover:text-fuchsia-100 px-2 py-1 rounded" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s, true)}>
+                        <Sparkles size={16} />
+                        <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
+                      </button>
+                    ) : (
+                      <button className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-300 px-2 py-1 rounded opacity-70" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s, false)}>
+                        <Lock size={16} />
+                        <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
+                      </button>
+                    )}
                   </td>
                   <td className="py-3 px-4 text-center">
                     <span className={`inline-block w-4 h-4 rounded-full ${getAttendanceColor(s.attendance)}`}></span>
@@ -198,10 +266,17 @@ Suggested actions:
 
       <SageAISummaryPanel
         isOpen={isInsightOpen}
-        onClose={() => { setIsInsightOpen(false); setInsightSummary(''); }}
+        onClose={() => { setIsInsightOpen(false); setInsightSummary(''); if (!previewUsed) setProLockInsight(false); if (previewTimerRef.current) { clearTimeout(previewTimerRef.current); previewTimerRef.current = null; } }}
         videoTitle={insightTitle}
         summary={insightSummary}
         isGenerating={insightGenerating}
+        proLock={proLockInsight}
+        onSummaryTyped={() => {
+          if (!proLockInsight && insightSummary) {
+            if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+            previewTimerRef.current = setTimeout(() => { setProLockInsight(true); setPreviewUsed(true); }, 10000);
+          }
+        }}
       />
     </div>
   );

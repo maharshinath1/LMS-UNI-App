@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { Bell, Plus, Trash2, Edit, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyStudents = [
   { id: 1, name: 'Alice Johnson' },
@@ -17,10 +18,31 @@ const dummyNotifications = [
 
 export default function Notifications() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [notifications, setNotifications] = useState(dummyNotifications);
   const [showModal, setShowModal] = useState(false);
   const [modalNotification, setModalNotification] = useState(null);
   const [selectedAudience, setSelectedAudience] = useState('all');
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startNotificationsTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startNotificationsTour = () => {
+    const steps = [
+      { target: '[data-tour="instructor-notifications-filter"]', title: t('instructor.tour.notifications.filter.title', 'Target Audience'), content: t('instructor.tour.notifications.filter.desc', 'Choose recipients for your announcements.'), placement: 'bottom', disableBeacon: true },
+      { target: '[data-tour="instructor-notifications-list"]', title: t('instructor.tour.notifications.list.title', 'Announcements List'), content: t('instructor.tour.notifications.list.desc', 'Create, edit, and manage announcements.'), placement: 'top', disableBeacon: true }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:notifications:v1', steps);
+  };
 
   const openAddNotification = () => {
     setModalNotification({ title: '', message: '', timestamp: new Date().toISOString(), targetAudience: selectedAudience });
@@ -62,7 +84,7 @@ export default function Notifications() {
               <Plus size={18} /> {t('instructor.notifications.new')}
             </button>
           </div>
-          <div className="mb-4">
+          <div className="mb-4" data-tour="instructor-notifications-filter">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('instructor.notifications.targetAudience')}</label>
             <select className="border rounded px-2 py-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100" value={selectedAudience} onChange={e => setSelectedAudience(e.target.value)}>
               <option value="all">{t('instructor.notifications.allStudents')}</option>
@@ -71,7 +93,7 @@ export default function Notifications() {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4" data-tour="instructor-notifications-list">
             {notifications.map(notification => (
               <div key={notification.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col bg-white dark:bg-gray-800">
                 <div className="flex justify-between items-start">

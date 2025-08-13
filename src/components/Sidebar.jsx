@@ -126,7 +126,14 @@ export default function Sidebar({ role: propRole }) {
     window.dispatchEvent(new CustomEvent('tour:open-launcher'));
   };
 
-  const isSageAIPage = location.pathname === '/student/sage-ai';
+  const startInstructorFullTourFromSidebar = () => {
+    if (role !== 'instructor') return;
+    localStorage.setItem('tour:hint:sidebar:shown', '1');
+    window.dispatchEvent(new CustomEvent('tour:open-launcher'));
+  };
+
+  const isSageAIStudent = location.pathname === '/student/sage-ai';
+  const isSageAIInstructor = location.pathname === '/instructor/sage-ai';
 
   return (
     <div id="sidebar-nav" className="w-64 h-screen bg-[#11296F] dark:bg-gray-900 text-white dark:text-gray-100 flex flex-col" data-tour="sidebar">
@@ -173,19 +180,40 @@ export default function Sidebar({ role: propRole }) {
         <LanguageSwitcher />
       </div>
 
-      {/* Start Tour */}
+      {/* Start Tour - Student */}
       {role === 'student' && (
         <button
-          onClick={isSageAIPage ? undefined : startStudentFullTourFromSidebar}
-          disabled={isSageAIPage}
-          className={`p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 transition-colors ${isSageAIPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0a1f4d] dark:hover:bg-gray-800'}`}
-          title={isSageAIPage ? t('student.tour.cta.disabled', 'Tour not available on Sage AI') : t('student.tour.cta.try', 'Start Tour')}
+          onClick={isSageAIStudent ? undefined : startStudentFullTourFromSidebar}
+          disabled={isSageAIStudent}
+          className={`p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 transition-colors ${isSageAIStudent ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0a1f4d] dark:hover:bg-gray-800'}`}
+          title={isSageAIStudent ? t('student.tour.cta.disabled', 'Tour not available on Sage AI') : t('student.tour.cta.try', 'Start Tour')}
           aria-label={t('student.tour.cta.try', 'Start Tour')}
-          aria-disabled={isSageAIPage}
+          aria-disabled={isSageAIStudent}
         >
           <HelpCircle size={20} />
           <span>{t('student.tour.cta.try', 'Start Tour')}</span>
-          {!isSageAIPage && !localStorage.getItem('tour:hint:sidebar:shown') && (
+          {!isSageAIStudent && !localStorage.getItem('tour:hint:sidebar:shown') && (
+            <span className="ml-auto flex items-center gap-2 text-xs text-yellow-200">
+              <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              {t('student.tour.cta.hint', 'Click here')}
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* Start Tour - Instructor */}
+      {role === 'instructor' && (
+        <button
+          onClick={isSageAIInstructor ? undefined : startInstructorFullTourFromSidebar}
+          disabled={isSageAIInstructor}
+          className={`p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 transition-colors ${isSageAIInstructor ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0a1f4d] dark:hover:bg-gray-800'}`}
+          title={isSageAIInstructor ? t('student.tour.cta.disabled', 'Tour not available on Sage AI') : t('student.tour.cta.try', 'Start Tour')}
+          aria-label={t('student.tour.cta.try', 'Start Tour')}
+          aria-disabled={isSageAIInstructor}
+        >
+          <HelpCircle size={20} />
+          <span>{t('student.tour.cta.try', 'Start Tour')}</span>
+          {!isSageAIInstructor && !localStorage.getItem('tour:hint:sidebar:shown') && (
             <span className="ml-auto flex items-center gap-2 text-xs text-yellow-200">
               <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               {t('student.tour.cta.hint', 'Click here')}

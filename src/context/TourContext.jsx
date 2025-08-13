@@ -48,7 +48,9 @@ export function TourProvider({ children }) {
 		try {
 			window.history.pushState({}, '', path);
 			window.dispatchEvent(new Event('popstate'));
-			localStorage.setItem('tour:launch', 'student-resume');
+			// Preserve role when resuming
+			const isInstructor = path.startsWith('/instructor');
+			localStorage.setItem('tour:launch', isInstructor ? 'instructor-resume' : 'student-resume');
 			// Increased delay for better page loading and element availability
 			setTimeout(() => window.dispatchEvent(new CustomEvent('tour:launch')), 400);
 		} catch (error) {
@@ -72,7 +74,7 @@ export function TourProvider({ children }) {
 			try {
 				const mode = localStorage.getItem('tour:mode');
 				const rawQueue = JSON.parse(localStorage.getItem('tour:queue') || '[]');
-				const allowed = [
+				const allowedStudent = [
 					'/student/courses',
 					'/student/assignments',
 					'/student/grades',
@@ -80,8 +82,21 @@ export function TourProvider({ children }) {
 					'/student/schedule',
 					'/student/messages',
 					'/student/notifications',
-					'/student/ecollab'
+					'/student/ecollab',
+					'/student/profile'
 				];
+				const allowedInstructor = [
+					'/instructor/courses',
+					'/instructor/students',
+					'/instructor/assignments',
+					'/instructor/grades',
+					'/instructor/calendar',
+					'/instructor/materials',
+					'/instructor/messages',
+					'/instructor/notifications',
+					'/instructor/profile'
+				];
+				const allowed = [...allowedStudent, ...allowedInstructor];
 				const queue = Array.isArray(rawQueue) ? rawQueue.filter(p => allowed.includes(p)) : [];
 				
 				// Handle full tour with more pages
@@ -126,6 +141,14 @@ export function TourProvider({ children }) {
 		restartTour,
 		setSteps
 	}), [startTour, stopTour, restartTour]);
+
+	// Determine tour audience for completion copy
+	const isInstructorTour = (() => {
+		try {
+			const full = JSON.parse(localStorage.getItem('tour:full:sequence') || '[]');
+			return Array.isArray(full) && full.some(p => typeof p === 'string' && p.startsWith('/instructor/'));
+		} catch { return false; }
+	})();
 
 	return (
 		<TourContext.Provider value={value}>
@@ -246,14 +269,14 @@ export function TourProvider({ children }) {
 				<div className="fixed inset-0 z-[21050] flex items-center justify-center p-4 animate-fadeIn">
 					<div className="absolute inset-0 bg-black/40 transition-opacity duration-300" onClick={() => setCompletePrompt(false)} />
 					<div className="relative w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-700 p-4 transform transition-all duration-300 ease-out animate-slideInUp">
-						<h3 className="text-gray-900 dark:text-gray-100 font-semibold mb-2">{t('student.tour.complete.title', 'Onboarding Tour Complete!')}</h3>
-						<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{t('student.tour.complete.desc', 'You have completed the onboarding tour and explored all the key features of your LMS. You\'re ready to start your learning journey!')}</p>
+						<h3 className="text-gray-900 dark:text-gray-100 font-semibold mb-2">{t(isInstructorTour ? 'instructor.tour.complete.title' : 'student.tour.complete.title', isInstructorTour ? 'Instructor Onboarding Tour Complete!' : 'Onboarding Tour Complete!')}</h3>
+						<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{t(isInstructorTour ? 'instructor.tour.complete.desc' : 'student.tour.complete.desc', isInstructorTour ? 'You have completed the instructor tour and explored the key teaching features. You\'re ready to go!' : 'You have completed the onboarding tour and explored all the key features of your LMS. You\'re ready to start your learning journey!')}</p>
 						<div className="flex gap-2 justify-end">
 							<button onClick={() => setCompletePrompt(false)} className="px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
 								{t('common.close', 'Close')}
 							</button>
-							<button onClick={() => { const full = JSON.parse(localStorage.getItem('tour:full:sequence') || '[]'); localStorage.setItem('tour:mode', 'full'); localStorage.setItem('tour:queue', JSON.stringify(Array.isArray(full) && full.length ? full : [])); localStorage.setItem('tour:launch', 'student-full'); setCompletePrompt(false); navigateTo('/student/dashboard'); }} className="px-3 py-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200">
-								{t('student.tour.complete.restart', 'Restart tour')}
+							<button onClick={() => { const full = JSON.parse(localStorage.getItem('tour:full:sequence') || '[]'); localStorage.setItem('tour:mode', 'full'); localStorage.setItem('tour:queue', JSON.stringify(Array.isArray(full) && full.length ? full : [])); const hasInstructor = (Array.isArray(full) ? full : []).some(p => p.startsWith('/instructor/')); const launch = hasInstructor ? 'instructor-full' : 'student-full'; localStorage.setItem('tour:launch', launch); setCompletePrompt(false); const dash = hasInstructor ? '/instructor/dashboard' : '/student/dashboard'; navigateTo(dash); }} className="px-3 py-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200">
+								{t(isInstructorTour ? 'instructor.tour.complete.restart' : 'student.tour.complete.restart', 'Restart tour')}
 							</button>
 						</div>
 					</div>

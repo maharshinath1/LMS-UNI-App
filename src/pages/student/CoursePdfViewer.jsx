@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { X, Sparkles } from 'lucide-react';
+import { X, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import SageAISummaryPanel from '../../components/SageAISummaryPanel';
 
@@ -16,14 +16,10 @@ function CoursePdfViewer() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSummarize = () => {
-    setIsGenerating(true);
+    // Lock PDF summarization to PRO: open panel without summary (upsell shows)
+    setIsGenerating(false);
+    setSummary('');
     setIsPanelOpen(true);
-    // Fake summary generation
-    setTimeout(() => {
-      const generated = `Summary for: ${title}\n\n• Key topics extracted from the document\n• Overview of core ideas and takeaways\n• Notable definitions, examples, and figures\n• Suggested next steps for revision`;
-      setSummary(generated);
-      setIsGenerating(false);
-    }, 1200);
   };
 
   return (
@@ -38,11 +34,11 @@ function CoursePdfViewer() {
           {pdfUrl && (
             <button
               onClick={handleSummarize}
-              className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm flex items-center gap-2"
+              className="px-3 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white text-sm flex items-center gap-2"
               aria-label={t('student.pdfViewer.summarize')}
             >
-              <Sparkles size={16} />
-              {isGenerating ? t('student.pdfViewer.generating') : t('student.pdfViewer.summarize')}
+              <Lock size={16} />
+              {t('student.pdfViewer.summarize')}
             </button>
           )}
           <button
@@ -76,6 +72,7 @@ function CoursePdfViewer() {
         videoTitle={title}
         summary={summary}
         isGenerating={isGenerating}
+        proLock={true}
       />
     </div>
   );

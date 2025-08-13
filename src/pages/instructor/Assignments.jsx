@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { 
   BookOpen, 
@@ -24,6 +24,7 @@ import {
   Check
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const courses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -69,6 +70,7 @@ const initialAssignments = [
 
 export default function Assignments() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [assignmentsData, setAssignmentsData] = useState(initialAssignments);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -91,6 +93,38 @@ export default function Assignments() {
   const [aiDifficulty, setAiDifficulty] = useState('Medium');
   const [aiPoints, setAiPoints] = useState(100);
   const [aiCourse, setAiCourse] = useState('');
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startAssignmentsTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startAssignmentsTour = () => {
+    const steps = [
+      {
+        target: '[data-tour="instructor-assignments-filter"]',
+        title: t('instructor.tour.assignments.filters.title', 'Filter & Search'),
+        content: t('instructor.tour.assignments.filters.desc', 'Search by title, filter by course and status.'),
+        placement: 'bottom',
+        disableBeacon: true
+      },
+      {
+        target: '[data-tour="instructor-assignments-list"]',
+        title: t('instructor.tour.assignments.list.title', 'Assignments List'),
+        content: t('instructor.tour.assignments.list.desc', 'View due dates, submissions, points and actions.'),
+        placement: 'top',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:assignments:v1', steps);
+  };
 
   const filteredAssignments = assignmentsData.filter(assignment => {
     const matchesCourse = selectedCourse ? assignment.course === selectedCourse : true;
@@ -196,7 +230,7 @@ Submission Instructions:
           </div>
 
           {/* Filters */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-6 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-6 p-4" data-tour="instructor-assignments-filter">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={20} />
@@ -236,7 +270,7 @@ Submission Instructions:
           </div>
 
           {/* Assignments Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="instructor-assignments-list">
             {filteredAssignments.map(assignment => (
               <div key={assignment.id} className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
                 <div className="p-6">

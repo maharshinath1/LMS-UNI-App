@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, BarChart2, UserCircle, Edit, CheckCircle, X, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyCourses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -27,11 +28,37 @@ const dummyGrades = {
 
 export default function Grades() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [selectedCourse, setSelectedCourse] = useState(dummyCourses[0].code);
   const [showModal, setShowModal] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [editFinal, setEditFinal] = useState('');
   const [editFeedback, setEditFeedback] = useState('');
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startGradesTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startGradesTour = () => {
+    const steps = [
+      {
+        target: '[data-tour="instructor-grades-table"]',
+        title: t('instructor.tour.grades.table.title', 'Grades Overview'),
+        content: t('instructor.tour.grades.table.desc', 'Review and edit final grades and feedback.'),
+        placement: 'top',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:grades:v1', steps);
+  };
 
   const students = dummyGrades[selectedCourse] || [];
 
@@ -68,7 +95,7 @@ export default function Grades() {
           </select>
         </div>
         {/* Grades Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto" data-tour="instructor-grades-table">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>

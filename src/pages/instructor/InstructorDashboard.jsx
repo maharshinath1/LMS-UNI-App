@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, Users2, ClipboardList, Calendar, BarChart2, MessageCircle, FileText, CheckCircle, TrendingUp, Bell, ArrowUpRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const stats = [
   { labelKey: 'instructor.dashboard.stats.myCourses', value: '6', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -46,6 +47,55 @@ const events = [
 
 export default function InstructorDashboard() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-full' || launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startInstructorTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  useEffect(() => {
+    const launch = localStorage.getItem('tour:launch');
+    if (launch === 'instructor-full' || launch === 'instructor-resume') {
+      localStorage.removeItem('tour:launch');
+      setTimeout(() => startInstructorTour(), 400);
+    }
+  }, []);
+
+  const startInstructorTour = () => {
+    const steps = [
+      {
+        target: '#sidebar-nav [data-tour="sidebar-link-dashboard"]',
+        title: t('instructor.tour.sidebar.title', 'Navigation'),
+        content: t('instructor.tour.sidebar.desc', 'Use the sidebar to navigate between instructor features.'),
+        placement: 'right',
+        disableBeacon: true,
+      },
+      {
+        target: '#instructor-stat-cards',
+        title: t('instructor.tour.dashboard.stats.title', 'Your Teaching Overview'),
+        content: t('instructor.tour.dashboard.stats.desc', 'Quick stats about your courses, students, grading and upcoming classes.'),
+        placement: 'bottom',
+        disableBeacon: true,
+      },
+      {
+        target: '[data-tour="instructor-messages"]',
+        title: t('instructor.tour.dashboard.messages.title', 'Student Messages'),
+        content: t('instructor.tour.dashboard.messages.desc', 'Review and respond to the latest messages from your students.'),
+        placement: 'left',
+        disableBeacon: true,
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:v1', steps);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="instructor" />
@@ -54,7 +104,7 @@ export default function InstructorDashboard() {
           {/* Main Content */}
           <div className="flex-1 flex flex-col gap-6">
             {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div id="instructor-stat-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-tour="instructor-stats">
               {stats.map((stat) => (
                 <div key={stat.labelKey} className={`rounded-xl shadow p-6 flex items-center gap-4 ${stat.bg} dark:bg-gray-800`}>
                   <stat.icon size={36} className={stat.color} />
@@ -86,7 +136,7 @@ export default function InstructorDashboard() {
               </div>
               {/* Student Engagement (Bar Chart) */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                <div className="flex justify_between items-center mb-2">
+                <div className="flex justify-between items-center mb-2">
                   <div className="font-semibold text-gray-700 dark:text-gray-100">{t('instructor.dashboard.charts.studentEngagement')}</div>
                   <select className="border rounded px-2 py-1 text-sm dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
                     <option>{t('instructor.dashboard.charts.range.last7')}</option>
@@ -105,7 +155,7 @@ export default function InstructorDashboard() {
             {/* Middle Widgets */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Messages */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex flex-col" data-tour="instructor-messages">
                 <div className="font-semibold text-gray-700 dark:text-gray-100 mb-2 flex items-center gap-2"><MessageCircle size={18}/> {t('instructor.dashboard.sections.messages')}</div>
                 <div className="flex-1 flex flex-col gap-3">
                   {messages.map((msg, i) => (

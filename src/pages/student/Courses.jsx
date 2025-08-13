@@ -72,11 +72,13 @@ const courseContents = {
 };
 
 function Courses() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const navigate = useNavigate();
   const { startTour } = useTour();
+  const isRTL = i18n.dir() === 'rtl';
+  const pr = (ltr, rtl) => (isRTL ? rtl : ltr);
 
   const startCoursesTour = () => {
     const steps = [
@@ -84,14 +86,14 @@ function Courses() {
         target: '#courses-search', 
         title: t('student.tour.courses.title', 'Find Your Courses'), 
         content: t('student.tour.courses.desc', 'Search for courses by name or instructor to quickly find what you need.'),
-        placement: 'left-start',
+        placement: pr('left-start', 'right-start'),
         disableBeacon: true
       },
       { 
         target: '[data-tour="courses-grid"]', 
         title: t('student.tour.courses.gridTitle', 'Course Overview'), 
         content: t('student.tour.courses.gridDesc', 'Each card shows your schedule, next class time, and current progress.'),
-        placement: 'top-start',
+        placement: pr('top-start', 'top-end'),
         disableBeacon: true
       },
       { 

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { UserCircle, Camera, Mail, Phone, Briefcase, Building2, Calendar, Globe, MapPin, Key, Linkedin, Github, Activity, CheckCircle, BarChart2 } from 'lucide-react';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { useTranslation } from 'react-i18next';
+import { useTour } from '../../context/TourContext.jsx';
 
 const mockProfile = {
   name: 'Dr. Emily Carter',
@@ -23,11 +24,31 @@ const mockProfile = {
 
 export default function InstructorProfile() {
   const { t } = useTranslation();
+  const { startTour } = useTour();
   const [profile, setProfile] = useState(mockProfile);
   const [pic, setPic] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { showBar, setShowBar } = useAccessibility();
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startProfileTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startProfileTour = () => {
+    const steps = [
+      { target: '[data-tour="instructor-profile-actions"]', title: t('instructor.tour.profile.actions.title', 'Profile & Actions'), content: t('instructor.tour.profile.actions.desc', 'Update details, change password, and access quick links.'), placement: 'left', disableBeacon: true }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:profile:v1', steps);
+  };
 
   const handlePicChange = (e) => {
     const file = e.target.files[0];
@@ -93,7 +114,7 @@ export default function InstructorProfile() {
               </div>
               <div className="text-right text-xs text-gray-500 dark:text-gray-300 mt-1">{profile.stats.completion}%</div>
             </div>
-            <div className="w-full mt-6 flex flex-col gap-2">
+            <div className="w-full mt-6 flex flex-col gap-2" data-tour="instructor-profile-actions">
               <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-700 dark:text-blue-400 hover:underline"><Linkedin size={18}/> {t('instructor.profile.social.linkedin')}</a>
               <a href={profile.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-800 dark:text-gray-100 hover:underline"><Github size={18}/> {t('instructor.profile.social.github')}</a>
               <a href="/admin/data-retention" className="mt-2 px-3 py-2 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-400 rounded-md text-sm font-semibold text-center hover:underline">{t('instructor.profile.viewDataRetention')}</a>
