@@ -71,7 +71,18 @@ export function TourProvider({ children }) {
 			
 			try {
 				const mode = localStorage.getItem('tour:mode');
-				const queue = JSON.parse(localStorage.getItem('tour:queue') || '[]');
+				const rawQueue = JSON.parse(localStorage.getItem('tour:queue') || '[]');
+				const allowed = [
+					'/student/courses',
+					'/student/assignments',
+					'/student/grades',
+					'/student/materials',
+					'/student/schedule',
+					'/student/messages',
+					'/student/notifications',
+					'/student/ecollab'
+				];
+				const queue = Array.isArray(rawQueue) ? rawQueue.filter(p => allowed.includes(p)) : [];
 				
 				// Handle full tour with more pages
 				if (mode === 'full' && Array.isArray(queue) && queue.length > 0) {
@@ -93,6 +104,9 @@ export function TourProvider({ children }) {
 				
 				// Only show completion prompt for full tour that's finished
 				if (mode === 'full') {
+					// Ensure cleanup so no stray restarts occur
+					localStorage.removeItem('tour:queue');
+					localStorage.removeItem('tour:launch');
 					setCompletePrompt(true);
 				}
 			} catch (error) {
@@ -120,7 +134,7 @@ export function TourProvider({ children }) {
 				run={run}
 				steps={steps}
 				continuous
-				showProgress
+				showProgress={false}
 				showSkipButton
 				disableBeacon={true}
 				scrollToFirstStep={true}
@@ -232,8 +246,8 @@ export function TourProvider({ children }) {
 				<div className="fixed inset-0 z-[21050] flex items-center justify-center p-4 animate-fadeIn">
 					<div className="absolute inset-0 bg-black/40 transition-opacity duration-300" onClick={() => setCompletePrompt(false)} />
 					<div className="relative w-full max-w-sm rounded-xl bg-white dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-700 p-4 transform transition-all duration-300 ease-out animate-slideInUp">
-						<h3 className="text-gray-900 dark:text-gray-100 font-semibold mb-2">{t('student.tour.complete.title', 'Full tour complete!')}</h3>
-						<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{t('student.tour.complete.desc', 'You have completed the full guided tour. Want to take it again?')}</p>
+						<h3 className="text-gray-900 dark:text-gray-100 font-semibold mb-2">{t('student.tour.complete.title', 'Onboarding Tour Complete!')}</h3>
+						<p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{t('student.tour.complete.desc', 'You have completed the onboarding tour and explored all the key features of your LMS. You\'re ready to start your learning journey!')}</p>
 						<div className="flex gap-2 justify-end">
 							<button onClick={() => setCompletePrompt(false)} className="px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
 								{t('common.close', 'Close')}

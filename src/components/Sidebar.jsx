@@ -126,6 +126,8 @@ export default function Sidebar({ role: propRole }) {
     window.dispatchEvent(new CustomEvent('tour:open-launcher'));
   };
 
+  const isSageAIPage = location.pathname === '/student/sage-ai';
+
   return (
     <div id="sidebar-nav" className="w-64 h-screen bg-[#11296F] dark:bg-gray-900 text-white dark:text-gray-100 flex flex-col" data-tour="sidebar">
       {/* Logo */}
@@ -152,14 +154,13 @@ export default function Sidebar({ role: propRole }) {
 
       {/* Menu Items */}
       <div className="flex-1 overflow-y-auto py-4">
-        {menuItems.map((item) => (
+        {(role === 'student' ? studentMenuItems : role === 'instructor' ? instructorMenuItems : adminMenuItems).map(item => (
           <button
             key={item.id}
             onClick={() => navigate(item.path)}
-            className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-[#0a1f4d] dark:hover:bg-gray-800 transition-colors ${
-              activeTab === item.id ? 'bg-[#0a1f4d] dark:bg-gray-800' : ''
-            }`}
+            className={`w-full px-4 py-3 flex items-center space-x-3 hover:bg-[#0a1f4d] dark:hover:bg-gray-800 transition-colors ${location.pathname === item.path ? 'bg-[#0a1f4d] dark:bg-gray-800' : ''}`}
             data-tour={`sidebar-link-${item.id}`}
+            aria-current={location.pathname === item.path ? 'page' : undefined}
           >
             <item.icon size={20} />
             <span>{t(item.labelKey)}</span>
@@ -175,14 +176,16 @@ export default function Sidebar({ role: propRole }) {
       {/* Start Tour */}
       {role === 'student' && (
         <button
-          onClick={startStudentFullTourFromSidebar}
-          className="p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 hover:bg-[#0a1f4d] dark:hover:bg-gray-800 transition-colors"
-          title={t('student.tour.cta.try', 'Start Tour')}
+          onClick={isSageAIPage ? undefined : startStudentFullTourFromSidebar}
+          disabled={isSageAIPage}
+          className={`p-4 border-t border-[#0a1f4d] dark:border-gray-800 flex items-center space-x-3 transition-colors ${isSageAIPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0a1f4d] dark:hover:bg-gray-800'}`}
+          title={isSageAIPage ? t('student.tour.cta.disabled', 'Tour not available on Sage AI') : t('student.tour.cta.try', 'Start Tour')}
           aria-label={t('student.tour.cta.try', 'Start Tour')}
+          aria-disabled={isSageAIPage}
         >
           <HelpCircle size={20} />
           <span>{t('student.tour.cta.try', 'Start Tour')}</span>
-          {!localStorage.getItem('tour:hint:sidebar:shown') && (
+          {!isSageAIPage && !localStorage.getItem('tour:hint:sidebar:shown') && (
             <span className="ml-auto flex items-center gap-2 text-xs text-yellow-200">
               <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               {t('student.tour.cta.hint', 'Click here')}

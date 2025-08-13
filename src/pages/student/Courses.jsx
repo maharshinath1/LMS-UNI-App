@@ -98,7 +98,7 @@ function Courses() {
         target: '[data-tour="view-details-btn"]', 
         title: t('student.tour.courses.detailsTitle', 'Course Details'), 
         content: t('student.tour.courses.detailsDesc', 'Click to access syllabus, materials, videos, and weekly content.'),
-        placement: 'left-start',
+        placement: 'top',
         disableBeacon: true
       }
     ].filter(s => document.querySelector(s.target));
@@ -107,26 +107,24 @@ function Courses() {
   };
 
   useEffect(() => {
-    // Auto-start tour for new users (but not too aggressively)
+    // Auto-start tour for new users
     const key = 'tour:student:courses:v1:autostart';
     const hasSeenTour = localStorage.getItem(key);
     const tourCompleted = localStorage.getItem('tour:student:courses:v1:state');
     
     if (!hasSeenTour && tourCompleted !== 'completed') {
-      // Delay to let page load properly
       setTimeout(() => {
         startCoursesTour();
         localStorage.setItem(key, 'shown');
-      }, 600);
+      }, 100);
     }
     
-    // Handle tour launches from navigation
+    // Handle tour launches from navigation (coming from dashboard in full tour)
     const onLaunch = () => {
       const launch = localStorage.getItem('tour:launch');
       if (launch === 'student-full' || launch === 'student-resume') {
         localStorage.removeItem('tour:launch');
-        // Longer delay to ensure page is fully rendered when coming from navigation
-        setTimeout(() => startCoursesTour(), 800);
+        setTimeout(() => startCoursesTour(), 100);
       }
     };
     

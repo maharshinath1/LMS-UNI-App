@@ -11,6 +11,11 @@
     "error": "Error",
     "success": "Success",
     "language": "Language",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "skip": "Skip",
+    "close": "Close",
     "copyright": "© {{year}} MarLn. All rights reserved."
   },
   "navigation": {
@@ -51,6 +56,32 @@
       "close": "Close Video",
       "unsupported": "Your browser does not support the video tag.",
       "notFound": "Video not found."
+    },
+    "tour": {
+      "nextPrompt": {
+        "title": "Continue to next page?",
+        "desc": "You finished this page tour. You can continue with the next page or close now."
+      },
+      "complete": {
+        "title": "Onboarding Tour Complete!",
+        "desc": "You have completed the onboarding tour and explored all the key features of your LMS. You're ready to start your learning journey!",
+        "restart": "Restart tour"
+      },
+      "cta": {
+        "try": "Start Tour",
+        "disabled": "Tour not available on this page",
+        "hint": "Click here"
+      },
+      "full": "Full tour (recommended)",
+      "pageOnly": "Tour for this page",
+      "courses": {
+        "title": "Find Your Courses",
+        "desc": "Search for courses by name or instructor to quickly find what you need.",
+        "gridTitle": "Course Overview",
+        "gridDesc": "Each card shows your schedule, next class time, and current progress.",
+        "detailsTitle": "Course Details",
+        "detailsDesc": "Click to access syllabus, materials, videos, and weekly content."
+      }
     },
     "ecollab": {
       "title": "eCollab",
@@ -203,6 +234,11 @@
     },
     "courses": {
       "title": "My Courses",
+      "tour": {
+        "search": { "title": "Search Your Courses", "desc": "Use this search bar to quickly find courses by name or instructor." },
+        "grid": { "title": "Your Course Dashboard", "desc": "Here are all your enrolled courses with progress tracking, schedules, and quick access to course materials." },
+        "details": { "title": "Course Materials & Resources", "desc": "Click \"View Details\" to access course syllabus, weekly materials, videos, and assignments." }
+      },
       "searchPlaceholder": "Search courses...",
       "card": {
         "instructor": "Instructor:",

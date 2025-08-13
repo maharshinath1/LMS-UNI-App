@@ -30,18 +30,22 @@ export default function TourLauncher() {
 		'/student/ecollab'
 	];
 
+	// Only allow the default set of pages in the full tour
+	const allowedPaths = new Set(fullSequenceDefault);
+
 	const getFullSequence = () => {
 		try {
 			const stored = JSON.parse(localStorage.getItem('tour:full:sequence') || '[]');
-			return Array.isArray(stored) && stored.length ? stored : fullSequenceDefault;
+			const cleaned = (Array.isArray(stored) ? stored : []).filter(p => allowedPaths.has(p));
+			return cleaned.length ? cleaned : fullSequenceDefault;
 		} catch { return fullSequenceDefault; }
 	};
 
 	const restartFull = () => {
-		const fullSequence = getFullSequence();
+		// Force-set to the default sequence every time to avoid stale or invalid routes (e.g., Sage AI)
 		localStorage.setItem('tour:mode', 'full');
-		localStorage.setItem('tour:full:sequence', JSON.stringify(fullSequence));
-		localStorage.setItem('tour:queue', JSON.stringify(fullSequence));
+		localStorage.setItem('tour:full:sequence', JSON.stringify(fullSequenceDefault));
+		localStorage.setItem('tour:queue', JSON.stringify(fullSequenceDefault));
 		localStorage.setItem('tour:launch', 'student-full');
 		setOpen(false);
 		

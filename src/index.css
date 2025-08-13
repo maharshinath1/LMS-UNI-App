@@ -66,6 +66,40 @@ body.react-joyride-active {
   position: fixed !important;
   max-width: 350px !important;
   z-index: 20001 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Keep Joyride container as a true overlay that doesn't change layout */
+[data-react-joyride] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  z-index: 20000 !important;
+}
+
+[data-react-joyride] * {
+  pointer-events: auto !important;
+}
+
+/* Ensure overlay and floater are fixed and never stretch the page */
+.__react_joyride__overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.__floater,
+.__floater__container,
+.__react_joyride__tooltip__container {
+  position: fixed !important;
+  box-sizing: border-box !important;
 }
 
 /* Ensure proper positioning without layout breaks */

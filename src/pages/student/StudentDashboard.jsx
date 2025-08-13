@@ -229,8 +229,8 @@ export default function StudentDashboard() {
   };
 
   const startFullTour = () => {
-    // Queue: dashboard (here), then all major student pages
-    localStorage.setItem('tour:queue', JSON.stringify([
+    // Force-set queue to the default set of pages (no Sage AI)
+    const defaultQueue = [
       '/student/courses',
       '/student/assignments', 
       '/student/grades',
@@ -239,7 +239,9 @@ export default function StudentDashboard() {
       '/student/messages',
       '/student/notifications',
       '/student/ecollab'
-    ]));
+    ];
+    localStorage.setItem('tour:queue', JSON.stringify(defaultQueue));
+    localStorage.setItem('tour:full:sequence', JSON.stringify(defaultQueue));
     startStudentTour();
     setShowTourChooser(false);
   };
