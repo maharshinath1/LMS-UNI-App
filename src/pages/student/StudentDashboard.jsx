@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { BookOpen, Users2, ClipboardList, Calendar, BarChart2, MessageCircle, FileText, CheckCircle, TrendingUp, Bell, Award, Library, Clock, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTour } from '../../context/TourContext.jsx';
 
-const stats = [
-  { labelKey: 'student.dashboard.stats.enrolledCourses', value: '5', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { labelKey: 'student.dashboard.stats.pendingAssignments', value: '3', icon: ClipboardList, color: 'text-yellow-600', bg: 'bg-yellow-50' },
-  { labelKey: 'student.dashboard.stats.averageGrade', value: '85%', icon: Award, color: 'text-green-600', bg: 'bg-green-50' },
-  { labelKey: 'student.dashboard.stats.nextClass', value: 'Math 101', icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-50' },
-];
+const statsData = {
+  'this': [
+    { labelKey: 'student.dashboard.stats.enrolledCourses', value: '5', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { labelKey: 'student.dashboard.stats.pendingAssignments', value: '3', icon: ClipboardList, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+    { labelKey: 'student.dashboard.stats.averageGrade', value: '85%', icon: Award, color: 'text-green-600', bg: 'bg-green-50' },
+    { labelKey: 'student.dashboard.stats.nextClass', value: 'Math 101', icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-50' },
+  ],
+  'last': [
+    { labelKey: 'student.dashboard.stats.enrolledCourses', value: '4', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { labelKey: 'student.dashboard.stats.pendingAssignments', value: '0', icon: ClipboardList, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+    { labelKey: 'student.dashboard.stats.averageGrade', value: '82%', icon: Award, color: 'text-green-600', bg: 'bg-green-50' },
+    { labelKey: 'student.dashboard.stats.nextClass', value: 'N/A', icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-50' },
+  ]
+};
 
 const messages = [
   { name: 'Dr. Emily Carter', time: '10:15 AM', msg: 'Your assignment has been graded. Great work!', avatar: '', color: 'bg-blue-200' },
@@ -30,12 +39,20 @@ const upcomingClasses = [
   { time: '3:30 PM', title: 'Chemistry Lab', room: 'Lab 203, Science Building', instructor: 'Dr. Sarah Lee' },
 ];
 
-const courseProgress = [
-  { name: 'Mathematics 101', progress: 75, color: 'bg-blue-500' },
-  { name: 'Physics 201', progress: 60, color: 'bg-green-500' },
-  { name: 'Chemistry 101', progress: 85, color: 'bg-yellow-500' },
-  { name: 'Computer Science 101', progress: 90, color: 'bg-purple-500' },
-];
+const courseProgressData = {
+  'this': [
+    { name: 'Mathematics 101', progress: 75, color: 'bg-blue-500' },
+    { name: 'Physics 201', progress: 60, color: 'bg-green-500' },
+    { name: 'Chemistry 101', progress: 85, color: 'bg-yellow-500' },
+    { name: 'Computer Science 101', progress: 90, color: 'bg-purple-500' },
+  ],
+  'last': [
+    { name: 'Calculus I', progress: 88, color: 'bg-blue-500' },
+    { name: 'General Physics', progress: 72, color: 'bg-green-500' },
+    { name: 'Introduction to Chemistry', progress: 91, color: 'bg-yellow-500' },
+    { name: 'Programming Fundamentals', progress: 85, color: 'bg-purple-500' },
+  ]
+};
 
 const upcomingAssignments = [
   {
@@ -64,18 +81,46 @@ const upcomingAssignments = [
   }
 ];
 
-const studyProgress = [
-  { labelKey: 'student.dashboard.studyProgress.attendanceRate', value: '92%', icon: Users2, trend: '+2.5%' },
-  { labelKey: 'student.dashboard.studyProgress.studyHours', value: '24h', icon: Clock, trend: '+5h' },
-  { labelKey: 'student.dashboard.studyProgress.completedTasks', value: '18/20', icon: CheckCircle, trend: '+3' },
-  { labelKey: 'student.dashboard.studyProgress.currentGpa', value: '3.8', icon: Award, trend: '+0.2' }
-];
+const studyProgressData = {
+  'this': [
+    { labelKey: 'student.dashboard.studyProgress.attendanceRate', value: '92%', icon: Users2, trend: '+2.5%' },
+    { labelKey: 'student.dashboard.studyProgress.studyHours', value: '24h', icon: Clock, trend: '+5h' },
+    { labelKey: 'student.dashboard.studyProgress.completedTasks', value: '18/20', icon: CheckCircle, trend: '+3' },
+    { labelKey: 'student.dashboard.studyProgress.currentGpa', value: '3.8', icon: Award, trend: '+0.2' }
+  ],
+  'last': [
+    { labelKey: 'student.dashboard.studyProgress.attendanceRate', value: '89%', icon: Users2, trend: '+1.2%' },
+    { labelKey: 'student.dashboard.studyProgress.studyHours', value: '28h', icon: Clock, trend: '+3h' },
+    { labelKey: 'student.dashboard.studyProgress.completedTasks', value: '22/25', icon: CheckCircle, trend: '+2' },
+    { labelKey: 'student.dashboard.studyProgress.currentGpa', value: '3.6', icon: Award, trend: '+0.1' }
+  ]
+};
 
 const quickActions = [
-  { labelKey: 'student.dashboard.widgets.buttons.courseMaterials', icon: FileText, color: 'blue' },
-  { labelKey: 'student.dashboard.widgets.buttons.assignments', icon: ClipboardList, color: 'purple' },
-  { labelKey: 'student.dashboard.widgets.buttons.schedule', icon: Calendar, color: 'yellow' },
-  { labelKey: 'student.dashboard.widgets.buttons.grades', icon: Award, color: 'green' }
+  { 
+    labelKey: 'student.dashboard.widgets.buttons.courseMaterials', 
+    icon: FileText, 
+    color: 'blue',
+    path: '/student/materials'
+  },
+  { 
+    labelKey: 'student.dashboard.widgets.buttons.assignments', 
+    icon: ClipboardList, 
+    color: 'purple',
+    path: '/student/assignments'
+  },
+  { 
+    labelKey: 'student.dashboard.widgets.buttons.schedule', 
+    icon: Calendar, 
+    color: 'yellow',
+    path: '/student/schedule'
+  },
+  { 
+    labelKey: 'student.dashboard.widgets.buttons.grades', 
+    icon: Award, 
+    color: 'green',
+    path: '/student/grades'
+  }
 ];
 
 const upcomingDeadlines = [
@@ -128,7 +173,9 @@ function AnimatedNumber({ value }) {
 export default function StudentDashboard() {
   const { t } = useTranslation();
   const { startTour } = useTour();
+  const navigate = useNavigate();
   const [showTourChooser, setShowTourChooser] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState('this');
   useEffect(() => {
     const key = 'tour:student:v1:autostart';
     const hasSeenTour = localStorage.getItem(key);
@@ -277,11 +324,13 @@ export default function StudentDashboard() {
         )}
         {/* Top Stats */}
         <div id="stat-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6" data-tour="stat-cards">
-          {stats.map((stat) => (
+          {statsData[selectedSemester].map((stat) => (
             <div key={stat.labelKey} className={`rounded-xl shadow p-6 flex items-center gap-4 ${stat.bg} dark:bg-gray-800`}>
               <stat.icon size={36} className={stat.color} />
               <div>
-                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100"><AnimatedNumber value={parseInt(stat.value)} /></div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {stat.value === 'N/A' ? 'N/A' : <AnimatedNumber value={parseInt(stat.value)} />}
+                </div>
                 <div className="text-gray-500 dark:text-gray-300 text-sm">{t(stat.labelKey)}</div>
               </div>
             </div>
@@ -295,13 +344,17 @@ export default function StudentDashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6" data-tour="academic-performance">
               <div className="flex justify-between items-center mb-4">
                 <div className="font-semibold text-gray-700 dark:text-gray-100">{t('student.dashboard.academicPerformance.title')}</div>
-                <select className="border rounded px-2 py-1 text-sm dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
-                  <option>{t('student.dashboard.academicPerformance.semester.this')}</option>
-                  <option>{t('student.dashboard.academicPerformance.semester.last')}</option>
+                <select 
+                  value={selectedSemester}
+                  onChange={(e) => setSelectedSemester(e.target.value)}
+                  className="border rounded px-2 py-1 text-sm dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700"
+                >
+                  <option value="this">{t('student.dashboard.academicPerformance.semester.this')}</option>
+                  <option value="last">{t('student.dashboard.academicPerformance.semester.last')}</option>
                 </select>
               </div>
               <div className="space-y-4">
-                {courseProgress.map((course) => (
+                {courseProgressData[selectedSemester].map((course) => (
                   <div key={course.name}>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{course.name}</span>
@@ -315,7 +368,7 @@ export default function StudentDashboard() {
 
             {/* Study Progress Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="study-stats">
-              {studyProgress.map((item, index) => (
+              {studyProgressData[selectedSemester].map((item, index) => (
                 <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
                   <div className="flex items-center justify-between mb-2">
                     <item.icon size={18} className="text-blue-600" />
@@ -336,22 +389,29 @@ export default function StudentDashboard() {
                   <Clock size={16} className="text-blue-600" />
                   <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.upcomingAssignments.title')}</span>
                 </div>
-                <a href="#" className="text-blue-600 dark:text-blue-400 text-sm hover:underline flex items-center">
+                                <button 
+                  onClick={() => navigate('/student/assignments')}
+                  className="text-blue-600 dark:text-blue-400 text-sm hover:underline flex items-center hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                >
                   {t('student.dashboard.upcomingAssignments.viewAll')}
                   <svg className="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
-                </a>
+                </button>
               </div>
               <div className="space-y-4">
                 {upcomingAssignments.map((a, idx) => (
-                  <div key={idx} className="flex justify-between items-center">
+                  <button 
+                    key={idx} 
+                    onClick={() => navigate('/student/assignments')}
+                    className="w-full text-left flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <div>
                       <div className="font-medium text-gray-700 dark:text-gray-200">{a.title}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-300">{a.course} • {a.dueDate}</div>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{a.daysLeft}d</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -367,9 +427,18 @@ export default function StudentDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {quickActions.map((action, idx) => (
-                  <button key={idx} className="flex items-center gap-2 px-3 py-2 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  <button 
+                    key={idx} 
+                    onClick={() => navigate(action.path)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded transition-all duration-200 hover:scale-105 ${
+                      action.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-800/30 text-blue-700 dark:text-blue-300' :
+                      action.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20 hover:bg-purple-200 dark:hover:bg-purple-800/30 text-purple-700 dark:text-purple-300' :
+                      action.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900/20 hover:bg-yellow-200 dark:hover:bg-yellow-800/30 text-yellow-700 dark:text-yellow-300' :
+                      'bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-800/30 text-green-700 dark:text-green-300'
+                    }`}
+                  >
                     <action.icon size={16} />
-                    <span className="text-sm">{t(action.labelKey)}</span>
+                    <span className="text-sm font-medium">{t(action.labelKey)}</span>
                   </button>
                 ))}
               </div>
@@ -377,19 +446,31 @@ export default function StudentDashboard() {
 
             {/* Recent Messages */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6" data-tour="messages">
-              <div className="flex items-center gap-2 mb-4">
-                <MessageCircle size={18} className="text-blue-600" />
-                <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.widgets.messages')}</span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <MessageCircle size={18} className="text-blue-600" />
+                  <span className="font-medium text-gray-700 dark:text-gray-100">{t('student.dashboard.widgets.messages')}</span>
+                </div>
+                <button 
+                  onClick={() => navigate('/student/messages')}
+                  className="text-blue-600 dark:text-blue-400 text-sm hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                >
+                  {t('common.viewAll')}
+                </button>
               </div>
               <div className="space-y-3">
                 {messages.map((m, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
+                  <button 
+                    key={idx} 
+                    onClick={() => navigate('/student/messages')}
+                    className="w-full text-left flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <div className={`w-8 h-8 rounded-full ${m.color}`}></div>
                     <div>
                       <div className="text-sm font-medium text-gray-700 dark:text-gray-200">{m.name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-300">{m.msg} • {m.time}</div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

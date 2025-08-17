@@ -10,7 +10,9 @@ import {
   AlertCircle,
   Search,
   Filter,
-  ChevronRight
+  ChevronRight,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTour } from '../../context/TourContext.jsx';
@@ -57,6 +59,7 @@ export default function StudentAssignments() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [viewMode, setViewMode] = useState('grid');
 
   const startAssignmentsTour = () => {
     const steps = [
@@ -139,7 +142,32 @@ export default function StudentAssignments() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.assignments.title')}</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              {t('student.assignments.title')}
+            </h1>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.assignments.view.grid')}
+              >
+                <Grid3X3 size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.assignments.view.list')}
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Filters */}
@@ -152,14 +180,14 @@ export default function StudentAssignments() {
                   placeholder={t('student.assignments.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                   id="assignments-search"
                 />
               </div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 id="assignments-status-filter"
               >
                 <option value="all">{t('student.assignments.status.all')}</option>
@@ -167,64 +195,130 @@ export default function StudentAssignments() {
                 <option value="submitted">{t('student.assignments.status.submitted')}</option>
                 <option value="overdue">{t('student.assignments.status.overdue')}</option>
               </select>
-              <button className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+              <button className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-100">
                 <Filter size={20} />
                 {t('student.assignments.filters')}
               </button>
             </div>
           </div>
 
-          {/* Assignments Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="assignments-grid">
-            {filteredAssignments.map(assignment => (
-              <div
-                key={assignment.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-gray-100">{assignment.title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-300">{assignment.course}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(assignment.status)} dark:bg-opacity-80`}>
-                      {t(`student.assignments.status.${assignment.status}`)}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>{t('student.assignments.list.due')}: {new Date(assignment.dueDate).toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <FileText className="h-4 w-4 mr-2" />
-                      <span>{t('student.assignments.list.type')}: {assignment.type}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <ClipboardList className="h-4 w-4 mr-2" />
-                      <span>{t('student.assignments.list.points')}: {assignment.points}</span>
-                    </div>
-                    {assignment.submittedAt && (
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                        <span>{t('student.assignments.list.submitted')}: {new Date(assignment.submittedAt).toLocaleString()}</span>
+          {/* Assignments Display */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="assignments-grid">
+              {filteredAssignments.map(assignment => (
+                <div
+                  key={assignment.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 dark:text-gray-100">{assignment.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-300">{assignment.course}</p>
                       </div>
-                    )}
-                  </div>
+                      <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(assignment.status)} dark:bg-opacity-80`}>
+                        {t(`student.assignments.status.${assignment.status}`)}
+                      </span>
+                    </div>
 
-                  <button
-                    onClick={() => setSelectedAssignment(assignment)}
-                    className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    data-tour="open-assignment"
-                  >
-                    {assignment.status === 'pending' ? t('student.assignments.buttons.submit') : t('student.assignments.buttons.viewDetails')}
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </button>
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        <span>{t('student.assignments.list.due')}: {new Date(assignment.dueDate).toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <FileText className="h-4 w-4 mr-2" />
+                        <span>{t('student.assignments.list.type')}: {assignment.type}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <ClipboardList className="h-4 w-4 mr-2" />
+                        <span>{t('student.assignments.list.points')}: {assignment.points}</span>
+                      </div>
+                      {assignment.submittedAt && (
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                          <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                          <span>{t('student.assignments.list.submitted')}: {new Date(assignment.submittedAt).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedAssignment(assignment)}
+                      className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      data-tour="open-assignment"
+                    >
+                      {assignment.status === 'pending' ? t('student.assignments.buttons.submit') : t('student.assignments.buttons.viewDetails')}
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden" data-tour="assignments-list">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/4">
+                        {t('student.assignments.list.assignment')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/5">
+                        {t('student.assignments.list.course')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.assignments.list.due')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.assignments.list.status')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/12">
+                        {t('student.assignments.list.points')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.assignments.list.actions')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredAssignments.map(assignment => (
+                      <tr key={assignment.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-4 py-3">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{assignment.title}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-300 truncate">{assignment.type}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 truncate">
+                          {assignment.course}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          {new Date(assignment.dueDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(assignment.status)} dark:bg-opacity-80`}>
+                            {t(`student.assignments.status.${assignment.status}`)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
+                          {assignment.points}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          <button
+                            onClick={() => setSelectedAssignment(assignment)}
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            data-tour="open-assignment"
+                          >
+                            {assignment.status === 'pending' ? t('student.assignments.buttons.submit') : t('student.assignments.buttons.viewDetails')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

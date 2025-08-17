@@ -35,6 +35,14 @@ import StudentSchedule from './pages/student/Schedule.jsx';
 import StudentMaterials from './pages/student/Materials.jsx';
 import StudentMessages from './pages/student/Messages.jsx';
 import StudentNotifications from './pages/student/Notifications.jsx';
+import StudyPlan from './pages/student/StudyPlan.jsx';
+import AssignmentSubmission from './pages/student/AssignmentSubmission.jsx';
+import DefinitionsSubmissionForm from './pages/student/DefinitionsSubmissionForm.jsx';
+import CheckMyVAE from './pages/student/CheckMyVAE.jsx';
+import ZoolaReport from './pages/student/ZoolaReport.jsx';
+import CaseBriefsSubmissionForm from './pages/student/CaseBriefsSubmissionForm.jsx';
+import MidtermEssaySubmissionForm from './pages/student/MidtermEssaySubmissionForm.jsx';
+import MiniThesisSubmissionForm from './pages/student/MiniThesisSubmissionForm.jsx';
 import CoursePdfViewer from './pages/student/CoursePdfViewer.jsx';
 import CourseVideoViewer from './pages/student/CourseVideoViewer.jsx';
 import Ecollab from './pages/student/Ecollab.jsx';
@@ -131,6 +139,14 @@ function App() {
                     <Route path="/student/sage-ai" element={<SageAI />} />
                     <Route path="/student/courses/:courseId/pdf/:week" element={<CoursePdfViewer />} />
                     <Route path="/student/courses/:courseId/video/:week" element={<CourseVideoViewer />} />
+                    <Route path="/student/study-plan" element={<StudyPlan />} />
+                    <Route path="/student/assignment-submission" element={<AssignmentSubmission />} />
+                    <Route path="/student/assignment-submission/definitions" element={<DefinitionsSubmissionForm />} />
+                    <Route path="/student/assignment-submission/case-briefs" element={<CaseBriefsSubmissionForm />} />
+                    <Route path="/student/assignment-submission/midterm-essays" element={<MidtermEssaySubmissionForm />} />
+                    <Route path="/student/assignment-submission/mini-thesis" element={<MiniThesisSubmissionForm />} />
+                    <Route path="/student/check-my-vae" element={<CheckMyVAE />} />
+                    <Route path="/student/zoola-report" element={<ZoolaReport />} />
                   </Route>
                 </Routes>
                 <TourLauncher />

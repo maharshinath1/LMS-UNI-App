@@ -154,31 +154,31 @@ export default function StudentProfile() {
             <form className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.fullName')}</label>
-                <input type="text" name="name" value={profile.name} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" required />
+                <input type="text" name="name" value={profile.name} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.email')}</label>
-                <input type="email" name="email" value={profile.email} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" required />
+                <input type="email" name="email" value={profile.email} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.phone')}</label>
-                <input type="tel" name="phone" value={profile.phone} onChange={handleChange} className="mt-1 block w_full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" required />
+                <input type="tel" name="phone" value={profile.phone} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.program')}</label>
-                <input type="text" name="program" value={profile.program} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
+                <input type="text" name="program" value={profile.program} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.year')}</label>
-                <input type="text" name="year" value={profile.year} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
+                <input type="text" name="year" value={profile.year} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.dob')}</label>
-                <input type="date" name="dob" value={profile.dob} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
+                <input type="date" name="dob" value={profile.dob} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.gender')}</label>
-                <select name="gender" value={profile.gender} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3">
+                <select name="gender" value={profile.gender} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100">
                   <option value="">{t('student.profile.form.genderSelect')}</option>
                   <option value="Male">{t('student.profile.form.genderMale')}</option>
                   <option value="Female">{t('student.profile.form.genderFemale')}</option>
@@ -187,12 +187,12 @@ export default function StudentProfile() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.address')}</label>
-                <input type="text" name="address" value={profile.address} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" />
+                <input type="text" name="address" value={profile.address} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text_gray-700 dark:text-gray-300">{t('student.profile.form.role')}</label>
-                <input type="text" name="role" value={profile.role} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3" disabled />
-              </div>
+                              <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('student.profile.form.role')}</label>
+                  <input type="text" name="role" value={profile.role} onChange={handleChange} className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 dark:bg-gray-700 dark:text-gray-100 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-400" disabled />
+                </div>
               <div className="md:col-span-2 flex gap-4 mt-2">
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">{t('student.profile.form.save')}</button>
               </div>

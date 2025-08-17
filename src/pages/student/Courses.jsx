@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { BookOpen, Clock, Users, Calendar, ChevronRight, Search, FileText, Video, ShieldCheck, CalendarDays } from 'lucide-react';
+import { BookOpen, Clock, Users, Calendar, ChevronRight, Search, FileText, Video, ShieldCheck, CalendarDays, Grid3X3, List, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTour } from '../../context/TourContext.jsx';
@@ -75,6 +75,7 @@ function Courses() {
   const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const navigate = useNavigate();
   const { startTour } = useTour();
   const isRTL = i18n.dir() === 'rtl';
@@ -145,70 +146,193 @@ function Courses() {
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('student.courses.title')}</h1>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder={t('student.courses.searchPlaceholder')}
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                id="courses-search"
-              />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              {t('student.courses.title')}
+            </h1>
+            <div className="flex items-center gap-4">
+              {/* View Toggle Button */}
+              <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'grid'
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+                  aria-label="Grid view"
+                >
+                  <Grid3X3 className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+                  aria-label="List view"
+                >
+                  <List className="h-5 w-5" />
+                </button>
+              </div>
+              
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('student.courses.searchPlaceholder')}
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  id="courses-search"
+                />
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="courses-grid">
-            {filteredCourses.map((course) => (
-              <div
-                key={course.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
-              >
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{course.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{course.description}</p>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Users className="h-4 w-4 mr-2" />
-                      <span>{t('student.courses.card.instructor')} {course.instructor}</span>
+          {/* Grid View */}
+          {viewMode === 'grid' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-tour="courses-grid">
+              {filteredCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                >
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{course.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{course.description}</p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <Users className="h-4 w-4 mr-2" />
+                        <span>{t('student.courses.card.instructor')} {course.instructor}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <Clock className="h-4 w-4 mr-2" />
+                        <span>{course.schedule}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        <span>{t('student.courses.card.nextClass', { date: new Date(course.nextClass).toLocaleString() })}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Clock className="h-4 w-4 mr-2" />
-                      <span>{course.schedule}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>{t('student.courses.card.nextClass', { date: new Date(course.nextClass).toLocaleString() })}</span>
-                    </div>
-                  </div>
 
-                  <div className="mt-4">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('student.courses.card.progress')}</span>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{course.progress}%</span>
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('student.courses.card.progress')}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{course.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${course.progress}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${course.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
 
-                  <button
-                    onClick={() => setSelectedCourse(course)}
-                    className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    data-tour="view-details-btn"
-                  >
-                    {t('student.courses.viewDetails')}
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </button>
+                    <button
+                      onClick={() => setSelectedCourse(course)}
+                      className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      data-tour="view-details-btn"
+                    >
+                      {t('student.courses.viewDetails')}
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+          )}
+
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.course')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.instructor')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.schedule')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.progress')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.nextClass')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        {t('student.courses.list.actions')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredCourses.map((course) => (
+                      <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="max-w-xs">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{course.title}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{course.description}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center max-w-xs">
+                            <Users className="h-4 w-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">{course.instructor}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center max-w-xs">
+                            <Clock className="h-4 w-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">{course.schedule}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-1 mr-3 max-w-16">
+                              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full"
+                                  style={{ width: `${course.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{course.progress}%</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center max-w-xs">
+                            <Calendar className="h-4 w-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">
+                              {new Date(course.nextClass).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => setSelectedCourse(course)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            {t('student.courses.viewDetails')}
+                            <ChevronRight className="ml-1 h-3 w-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Course Details Modal */}
@@ -268,6 +392,56 @@ function Courses() {
                     >
                       <FileText className="mr-2 w-4 h-4" /> {t('student.courses.modal.viewSyllabus')}
                     </button>
+                    
+                    {/* Action Buttons */}
+                    <div className="relative mb-4">
+                      <div className={`space-y-3 ${selectedCourse.title === 'Web Development' ? 'blur-sm' : ''}`}>
+                        <button
+                          onClick={() => navigate('/student/study-plan', { state: { course: selectedCourse } })}
+                          className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 font-medium text-sm transition"
+                          disabled={selectedCourse.title === 'Web Development'}
+                        >
+                          <FileText className="mr-2 w-4 h-4" /> {t('student.courses.modal.actionButtons.studyPlan')}
+                        </button>
+                        <button
+                          onClick={() => navigate('/student/assignment-submission', { state: { course: selectedCourse } })}
+                          className="w-full flex items-center justify-center px-4 py-2 bg-orange-600 text-white rounded-lg shadow-sm hover:bg-orange-700 font-medium text-sm transition"
+                          disabled={selectedCourse.title === 'Web Development'}
+                        >
+                          <FileText className="mr-2 w-4 h-4" /> {t('student.courses.modal.actionButtons.assignmentSubmissionForm')}
+                        </button>
+                        <button
+                          onClick={() => navigate('/student/check-my-vae', { state: { course: selectedCourse } })}
+                          className="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 font-medium text-sm transition"
+                          disabled={selectedCourse.title === 'Web Development'}
+                        >
+                          <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {t('student.courses.modal.actionButtons.checkMyVae')}
+                        </button>
+                        <button
+                          onClick={() => navigate('/student/zoola-report', { state: { course: selectedCourse } })}
+                          className="w-full flex items-center justify-center px-4 py-2 bg-pink-600 text-white rounded-lg shadow-sm hover:bg-pink-700 font-medium text-sm transition"
+                          disabled={selectedCourse.title === 'Web Development'}
+                        >
+                          <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          {t('student.courses.modal.actionButtons.zoolaReport')}
+                        </button>
+                      </div>
+                      {selectedCourse.title === 'Web Development' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/10 dark:bg-gray-900/10 rounded-lg">
+                          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full shadow-lg font-semibold text-lg flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                            </svg>
+                            {t('student.courses.modal.proBanner')}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     <h3 className="flex items-center gap-1 text-base font-bold text-pink-600 mb-2">
                       <Video className="w-5 h-5" /> {t('student.courses.modal.weeklyContent')}

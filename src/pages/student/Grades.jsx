@@ -9,7 +9,9 @@ import {
   Search,
   Filter,
   ChevronRight,
-  Info
+  Info,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTour } from '../../context/TourContext.jsx';
@@ -65,6 +67,7 @@ function Grades() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [semesterFilter, setSemesterFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
 
   const startGradesTour = () => {
     const steps = [
@@ -161,7 +164,32 @@ function Grades() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.grades.title')}</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                <Award className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              {t('student.grades.title')}
+            </h1>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.grades.view.grid')}
+              >
+                <Grid3X3 size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.grades.view.list')}
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Filters */}
@@ -227,52 +255,118 @@ function Grades() {
           </div>
 
           {/* Course Grades */}
-          <div className="grid grid-cols-1 gap-6" data-tour="grades-course-list">
-            {filteredCourses.map(course => (
-              <div
-                key={course.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-800 dark:text-gray-100">{course.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-300">{course.code} - {course.instructor}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-2xl font-bold ${getGradeColor(course.grade)} dark:text-blue-400`}>
-                        {course.grade}%
-                      </span>
-                      {getTrendIcon(course.trend)}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {course.assignments.map((assignment, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-300">{assignment.name}</span>
-                        <div className="flex items-center gap-4">
-                          <span className="text-gray-600 dark:text-gray-300">{assignment.weight}%</span>
-                          <span className={`font-medium ${getGradeColor(assignment.grade)} dark:text-blue-400`}>
-                            {assignment.grade}/{assignment.maxPoints}
-                          </span>
-                        </div>
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 gap-6" data-tour="grades-course-list">
+              {filteredCourses.map(course => (
+                <div
+                  key={course.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 dark:text-gray-100">{course.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-300">{course.code} - {course.instructor}</p>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-2xl font-bold ${getGradeColor(course.grade)} dark:text-blue-400`}>
+                          {course.grade}%
+                        </span>
+                        {getTrendIcon(course.trend)}
+                      </div>
+                    </div>
 
-                  <button
-                    onClick={() => setSelectedCourse(course)}
-                    className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    data-tour="view-course-details"
-                  >
-                    {t('student.grades.viewDetails')}
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </button>
+                    <div className="space-y-3">
+                      {course.assignments.map((assignment, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-300">{assignment.name}</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-600 dark:text-gray-300">{assignment.weight}%</span>
+                            <span className={`font-medium ${getGradeColor(assignment.grade)} dark:text-blue-400`}>
+                              {assignment.grade}/{assignment.maxPoints}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedCourse(course)}
+                      className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      data-tour="view-course-details"
+                    >
+                      {t('student.grades.viewDetails')}
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden" data-tour="grades-course-list">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/4">
+                        {t('student.grades.list.course')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.grades.list.code')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/5">
+                        {t('student.grades.list.instructor')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.grades.list.grade')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.grades.list.trend')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.grades.list.actions')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredCourses.map(course => (
+                      <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-4 py-3">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{course.name}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-300 truncate">{course.semester}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          {course.code}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 truncate">
+                          {course.instructor}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-lg font-bold ${getGradeColor(course.grade)} dark:text-blue-400`}>
+                            {course.grade}%
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {getTrendIcon(course.trend)}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          <button
+                            onClick={() => setSelectedCourse(course)}
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            data-tour="view-course-details"
+                          >
+                            {t('student.grades.viewDetails')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

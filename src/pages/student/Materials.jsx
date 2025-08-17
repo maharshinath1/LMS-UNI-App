@@ -13,7 +13,9 @@ import {
   FileVideo,
   FileAudio,
   FileArchive,
-  FileCode
+  FileCode,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTour } from '../../context/TourContext.jsx';
@@ -92,6 +94,7 @@ function Materials() {
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [viewMode, setViewMode] = useState('grid');
   const { startTour } = useTour();
 
   const filteredMaterials = materials.filter(material => {
@@ -199,7 +202,32 @@ function Materials() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('student.materials.title')}</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              {t('student.materials.title')}
+            </h1>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.materials.view.grid')}
+              >
+                <Grid3X3 size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+                title={t('student.materials.view.list')}
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Filters */}
@@ -245,67 +273,142 @@ function Materials() {
             </div>
           </div>
 
-          {/* Materials Grid */}
-          <div className="grid grid-cols-1 gap-6" data-tour="materials-list">
-            {filteredMaterials.map(material => (
-              <div
-                key={material.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-start gap-4">
-                      {getFileIcon(material.format)}
-                      <div>
-                        <h3 className="font-semibold text-gray-800 dark:text-gray-100">{material.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-300">{material.course} ({material.code})</p>
+          {/* Materials Display */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 gap-6" data-tour="materials-list">
+              {filteredMaterials.map(material => (
+                <div
+                  key={material.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-start gap-4">
+                        {getFileIcon(material.format)}
+                        <div>
+                          <h3 className="font-semibold text-gray-800 dark:text-gray-100">{material.title}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-300">{material.course} ({material.code})</p>
+                        </div>
                       </div>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                      {getTypeLabel(material.type)}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-gray-600 mb-4">{material.description}</p>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <FileType className="h-4 w-4 mr-2" />
-                      <span>{material.format.toUpperCase()}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <FileText className="h-4 w-4 mr-2" />
-                      <span>{material.size}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      <span>{material.instructor}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Download className="h-4 w-4 mr-2" />
-                      <span>
-                        {t('student.materials.labels.downloadCount_other', { count: material.downloads })}
+                      <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                        {getTypeLabel(material.type)}
                       </span>
                     </div>
-                  </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      {t('student.materials.labels.uploaded')}: {new Date(material.uploadedAt).toLocaleDateString()}
-                    </span>
-                    <button
-                      onClick={() => setSelectedMaterial(material)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                      data-tour="view-details-btn"
-                    >
-                      {t('student.materials.labels.viewDetails')}
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{material.description}</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <FileType className="h-4 w-4 mr-2" />
+                        <span>{material.format.toUpperCase()}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <FileText className="h-4 w-4 mr-2" />
+                        <span>{material.size}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        <span>{material.instructor}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <Download className="h-4 w-4 mr-2" />
+                        <span>
+                          {t('student.materials.labels.downloadCount_other', { count: material.downloads })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {t('student.materials.labels.uploaded')}: {new Date(material.uploadedAt).toLocaleDateString()}
+                      </span>
+                      <button
+                        onClick={() => setSelectedMaterial(material)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        data-tour="view-details-btn"
+                      >
+                        {t('student.materials.labels.viewDetails')}
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden" data-tour="materials-list">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/4">
+                        {t('student.materials.list.title')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.materials.list.course')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.materials.list.type')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.materials.list.format')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.materials.list.downloads')}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/6">
+                        {t('student.materials.list.actions')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredMaterials.map(material => (
+                      <tr key={material.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {getFileIcon(material.format)}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{material.title}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{material.instructor}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          <div>
+                            <div className="font-medium">{material.code}</div>
+                            <div className="text-gray-500 dark:text-gray-400 truncate">{material.course}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                            {getTypeLabel(material.type)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          <div>
+                            <div className="font-medium">{material.format.toUpperCase()}</div>
+                            <div className="text-gray-500 dark:text-gray-400">{material.size}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          {t('student.materials.labels.downloadCount_other', { count: material.downloads })}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          <button
+                            onClick={() => setSelectedMaterial(material)}
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            data-tour="view-details-btn"
+                          >
+                            {t('student.materials.labels.viewDetails')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
