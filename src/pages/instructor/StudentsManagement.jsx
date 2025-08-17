@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText } from 'lucide-react';
+import { UserCircle, Mail, BarChart2, MessageCircle, Eye, CheckCircle, X, BookOpen, FileText, Sparkles, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import SageAISummaryPanel from '../../components/SageAISummaryPanel';
+import { useTour } from '../../context/TourContext.jsx';
 
 const dummyCourses = [
   { id: 1, code: 'CS101', name: 'Introduction to Computer Science' },
@@ -31,10 +34,61 @@ function getAttendanceColor(att) {
 }
 
 export default function StudentsManagement() {
+  const { t } = useTranslation();
+  const { startTour } = useTour();
   const [selectedCourse, setSelectedCourse] = useState(dummyCourses[0].code);
   const [showModal, setShowModal] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [note, setNote] = useState('');
+  const [isInsightOpen, setIsInsightOpen] = useState(false);
+  const [insightSummary, setInsightSummary] = useState('');
+  const [insightGenerating, setInsightGenerating] = useState(false);
+  const [insightTitle, setInsightTitle] = useState('');
+  const [proLockInsight, setProLockInsight] = useState(false);
+  const previewTimerRef = useRef(null);
+  const [previewUsed, setPreviewUsed] = useState(false);
+
+  // Persist previewUsed per session in localStorage
+  useEffect(() => {
+    const used = localStorage.getItem('instructor:insight:previewUsed');
+    if (used === '1') setPreviewUsed(true);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('instructor:insight:previewUsed', previewUsed ? '1' : '0');
+  }, [previewUsed]);
+
+  useEffect(() => {
+    const onLaunch = () => {
+      const launch = localStorage.getItem('tour:launch');
+      if (launch === 'instructor-resume') {
+        localStorage.removeItem('tour:launch');
+        setTimeout(() => startStudentsTour(), 200);
+      }
+    };
+    window.addEventListener('tour:launch', onLaunch);
+    return () => window.removeEventListener('tour:launch', onLaunch);
+  }, []);
+
+  const startStudentsTour = () => {
+    const steps = [
+      {
+        target: '[data-tour="instructor-students-table"]',
+        title: t('instructor.tour.students.table.title', 'Students Roster'),
+        content: t('instructor.tour.students.table.desc', 'View progress, attendance, and manage student notes.'),
+        placement: 'top',
+        disableBeacon: true
+      },
+      {
+        target: '[data-tour="instructor-ai-insight"]',
+        title: t('instructor.tour.students.aiInsight.title', 'AI Insight (Preview)'),
+        content: t('instructor.tour.students.aiInsight.desc', 'First insight shows for 10 seconds, then locks to PRO for future.'),
+        placement: 'left',
+        disableBeacon: true
+      }
+    ].filter(s => document.querySelector(s.target));
+    if (steps.length) startTour('instructor:students:v1', steps);
+  };
 
   const students = dummyStudents[selectedCourse] || [];
 
@@ -53,11 +107,56 @@ export default function StudentsManagement() {
     setShowModal(false);
   };
 
+  const buildInsight = (s) => {
+    const performance = s.progress >= 85 ? 'excellent' : s.progress >= 70 ? 'good' : 'needs improvement';
+    const attendanceBand = s.attendance >= 90 ? 'very strong' : s.attendance >= 80 ? 'solid' : 'low';
+    const noteText = s.notes && s.notes.trim().length > 0 ? s.notes : 'No instructor notes available yet.';
+    return (
+      `AI summary for ${s.name} in ${selectedCourse}:
+
+Progress: ${s.progress}% (${performance}).
+Attendance: ${s.attendance}% (${attendanceBand}).
+Last active: ${s.lastActive}.
+
+Notes: ${noteText}
+
+Suggested actions:
+- Focus next week on topics with lower quiz scores or incomplete assignments.
+- Offer targeted support and brief 1:1 check-in if needed.
+- Encourage consistent attendance and timely submissions.`
+    );
+  };
+
+  const openInsight = (s, previewFirst = false) => {
+    setInsightTitle(`${s.name} — ${selectedCourse}`);
+    setIsInsightOpen(true);
+    // Clear any previous timer
+    if (previewTimerRef.current) {
+      clearTimeout(previewTimerRef.current);
+      previewTimerRef.current = null;
+    }
+    if (previewFirst && !previewUsed) {
+      // Show summary immediately, then lock after 5s
+      setInsightGenerating(false);
+      setInsightSummary(buildInsight(s));
+      setProLockInsight(false);
+      previewTimerRef.current = setTimeout(() => {
+        setProLockInsight(true);
+        setPreviewUsed(true);
+      }, 10000);
+    } else {
+      // Locked view (PRO upsell)
+      setInsightSummary('');
+      setInsightGenerating(false);
+      setProLockInsight(true);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar role="instructor" />
       <div className="flex-1 overflow-auto p-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Students Management</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">{t('instructor.studentsManagement.title')}</h1>
         {/* Course Selector */}
         <div className="mb-6 flex items-center gap-4">
           <BookOpen size={24} className="text-blue-600 dark:text-blue-400" />
@@ -66,21 +165,22 @@ export default function StudentsManagement() {
           </select>
         </div>
         {/* Students Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-x-auto" data-tour="instructor-students-table">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Student</th>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Email</th>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Year</th>
-                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">Progress</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Attendance</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Last Active</th>
-                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">Actions</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.student')}</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.email')}</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.year')}</th>
+                <th className="py-3 px-4 text-left text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.progress')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.aiInsight', 'AI Insight')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.attendance')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.lastActive')}</th>
+                <th className="py-3 px-4 text-center text-gray-700 dark:text-gray-200">{t('instructor.studentsManagement.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {students.map((s) => (
+              {students.map((s, idx) => (
                 <tr key={s.id} className="border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 transition">
                   <td className="py-3 px-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
@@ -96,15 +196,28 @@ export default function StudentsManagement() {
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{s.progress}%</div>
                   </td>
+                  <td className="py-3 px-4 text-center" data-tour="instructor-ai-insight">
+                    {idx === 0 ? (
+                      <button className="inline-flex items-center gap-1 text-fuchsia-700 dark:text-fuchsia-300 hover:text-fuchsia-900 dark:hover:text-fuchsia-100 px-2 py-1 rounded" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s, true)}>
+                        <Sparkles size={16} />
+                        <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
+                      </button>
+                    ) : (
+                      <button className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-300 px-2 py-1 rounded opacity-70" title={t('instructor.studentsManagement.actions.aiInsight', 'AI Insight')} onClick={() => openInsight(s, false)}>
+                        <Lock size={16} />
+                        <span className="hidden md:inline">{t('instructor.studentsManagement.actions.aiInsight', 'Insight')}</span>
+                      </button>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-center">
                     <span className={`inline-block w-4 h-4 rounded-full ${getAttendanceColor(s.attendance)}`}></span>
                     <span className="ml-2 text-xs text-gray-600 dark:text-gray-300">{s.attendance}%</span>
                   </td>
                   <td className="py-3 px-4 text-center text-gray-500 dark:text-gray-300">{s.lastActive}</td>
                   <td className="py-3 px-4 text-center">
-                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 mr-2" title="View Details" onClick={() => openModal(s)}><Eye size={18} /></button>
-                    <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 mr-2" title="Message"><MessageCircle size={18} /></button>
-                    <button className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200" title="Add Note" onClick={() => openModal(s)}><FileText size={18} /></button>
+                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 mr-2" title={t('instructor.studentsManagement.actions.viewDetails')} onClick={() => openModal(s)}><Eye size={18} /></button>
+                    <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 mr-2" title={t('instructor.studentsManagement.actions.message')}><MessageCircle size={18} /></button>
+                    <button className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200" title={t('instructor.studentsManagement.actions.addNote')} onClick={() => openModal(s)}><FileText size={18} /></button>
                   </td>
                 </tr>
               ))}
@@ -128,28 +241,43 @@ export default function StudentsManagement() {
                 </div>
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><BarChart2 size={18}/> Progress</div>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><BarChart2 size={18}/> {t('instructor.studentsManagement.modal.progress')}</div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                   <div className="bg-blue-600 h-4 rounded-full" style={{ width: `${activeStudent.progress}%` }}></div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{activeStudent.progress}% completed</div>
+                <div className="text-xs text-gray-500 dark:text-gray-300 mt-1">{t('instructor.studentsManagement.modal.progressCompleted', { value: activeStudent.progress })}</div>
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><CheckCircle size={18}/> Attendance</div>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><CheckCircle size={18}/> {t('instructor.studentsManagement.modal.attendance')}</div>
                 <div className="flex items-center gap-2">
                   <span className={`inline-block w-4 h-4 rounded-full ${getAttendanceColor(activeStudent.attendance)}`}></span>
                   <span className="text-gray-600 dark:text-gray-300 text-sm">{activeStudent.attendance}%</span>
                 </div>
               </div>
               <div className="mb-4">
-                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><FileText size={18}/> Instructor Notes</div>
-                <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 dark:bg-gray-900 dark:text-gray-100" rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder="Add notes or feedback..." />
-                <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveNote}>Save Note</button>
+                <div className="font-semibold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2"><FileText size={18}/> {t('instructor.studentsManagement.modal.instructorNotes')}</div>
+                <textarea className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 dark:bg-gray-900 dark:text-gray-100" rows={3} value={note} onChange={e => setNote(e.target.value)} placeholder={t('instructor.studentsManagement.modal.notesPlaceholder')} />
+                <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800" onClick={saveNote}>{t('instructor.studentsManagement.actions.saveNote')}</button>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      <SageAISummaryPanel
+        isOpen={isInsightOpen}
+        onClose={() => { setIsInsightOpen(false); setInsightSummary(''); if (!previewUsed) setProLockInsight(false); if (previewTimerRef.current) { clearTimeout(previewTimerRef.current); previewTimerRef.current = null; } }}
+        videoTitle={insightTitle}
+        summary={insightSummary}
+        isGenerating={insightGenerating}
+        proLock={proLockInsight}
+        onSummaryTyped={() => {
+          if (!proLockInsight && insightSummary) {
+            if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+            previewTimerRef.current = setTimeout(() => { setProLockInsight(true); setPreviewUsed(true); }, 10000);
+          }
+        }}
+      />
     </div>
   );
 } 
